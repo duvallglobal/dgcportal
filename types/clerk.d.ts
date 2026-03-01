@@ -1,4 +1,4 @@
-export interface ClerkPublicMetadata {
+interface ClerkPublicMetadata {
   role?: 'admin' | 'client'
 }
 
@@ -8,3 +8,5 @@ declare global {
     publicMetadata?: ClerkPublicMetadata
   }
 }
+
+export {}
