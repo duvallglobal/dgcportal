@@ -84,7 +84,26 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {nav.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/admin' && item.href !== '/dashboard' && pathname.startsWith(item.href))
+            /**
+             * isActive rules:
+             * 1. Exact path match always wins.
+             * 2. Prefix match (pathname starts with item.href + '/') only if no
+             *    *longer* nav item in the current nav also matches — this prevents
+             *    parent entries (e.g. /admin/settings) lighting up when a child
+             *    entry (e.g. /admin/settings/ai) is the active page.
+             */
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/admin' &&
+                item.href !== '/dashboard' &&
+                pathname.startsWith(item.href + '/') &&
+                !nav.some(
+                  (other) =>
+                    other.href !== item.href &&
+                    other.href.length > item.href.length &&
+                    pathname.startsWith(other.href)
+                ))
+
             return (
               <Link
                 key={item.href}

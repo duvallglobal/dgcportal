@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/dal'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { FileText, CreditCard, LifeBuoy, FileSignature } from 'lucide-react'
 import Link from 'next/link'
 
@@ -15,20 +16,31 @@ export default async function DashboardPage() {
     .eq('clerk_user_id', user.userId)
     .single()
 
-  // Get counts
   const clientId = client?.id
+
+  // Use Promise.resolve with correct Supabase shape when clientId is missing
+  const empty = Promise.resolve({ data: [], count: 0, error: null })
+
   const [intakes, agreements, tickets, payments] = await Promise.all([
-    clientId ? supabase.from('project_intakes').select('id, status', { count: 'exact' }).eq('client_id', clientId) : { count: 0 },
-    clientId ? supabase.from('service_agreements').select('id, status', { count: 'exact' }).eq('client_id', clientId) : { count: 0 },
-    clientId ? supabase.from('support_tickets').select('id, status', { count: 'exact' }).eq('client_id', clientId).in('status', ['open', 'in_progress']) : { count: 0 },
-    clientId ? supabase.from('payments').select('id, amount', { count: 'exact' }).eq('client_id', clientId).eq('status', 'succeeded') : { count: 0 },
+    clientId
+      ? supabase.from('project_intakes').select('id, status', { count: 'exact' }).eq('client_id', clientId)
+      : empty,
+    clientId
+      ? supabase.from('service_agreements').select('id, status', { count: 'exact' }).eq('client_id', clientId)
+      : empty,
+    clientId
+      ? supabase.from('support_tickets').select('id, status', { count: 'exact' }).eq('client_id', clientId).in('status', ['open', 'in_progress'])
+      : empty,
+    clientId
+      ? supabase.from('payments').select('id, amount', { count: 'exact' }).eq('client_id', clientId).eq('status', 'succeeded')
+      : empty,
   ])
 
   const cards = [
-    { title: 'Project Intakes', value: intakes.count || 0, icon: FileText, href: '/dashboard/intake', color: 'text-blue-600' },
-    { title: 'Agreements', value: agreements.count || 0, icon: FileSignature, href: '/dashboard/agreement', color: 'text-green-600' },
-    { title: 'Open Tickets', value: tickets.count || 0, icon: LifeBuoy, href: '/dashboard/support', color: 'text-orange-600' },
-    { title: 'Payments', value: payments.count || 0, icon: CreditCard, href: '/dashboard/billing', color: 'text-purple-600' },
+    { title: 'Project Intakes', value: intakes.count ?? 0, icon: FileText, href: '/dashboard/intake', color: 'text-blue-600' },
+    { title: 'Agreements', value: agreements.count ?? 0, icon: FileSignature, href: '/dashboard/agreement', color: 'text-green-600' },
+    { title: 'Open Tickets', value: tickets.count ?? 0, icon: LifeBuoy, href: '/dashboard/support', color: 'text-orange-600' },
+    { title: 'Payments', value: payments.count ?? 0, icon: CreditCard, href: '/dashboard/billing', color: 'text-purple-600' },
   ]
 
   return (
@@ -91,8 +103,4 @@ export default async function DashboardPage() {
       </div>
     </div>
   )
-}
-
-function cn(...classes: (string | undefined)[]) {
-  return classes.filter(Boolean).join(' ')
 }
