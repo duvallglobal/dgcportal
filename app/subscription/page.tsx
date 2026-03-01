@@ -1,3 +1,3 @@
-// This file is intentionally empty - old template placeholder
-// TODO: Remove this directory in next cleanup
-export default function Placeholder() { return null }
+// DELETED - Legacy Recipe Emporium template. This route is unused.
+// Safe to remove this entire directory.
+export default function Deleted() { return null }
