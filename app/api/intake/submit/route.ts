@@ -4,11 +4,65 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/resend'
 import { encrypt } from '@/lib/encryption'
+import { z } from 'zod'
+
+// Safe JSON parse that never throws
+function safeParseJSON<T>(value: string | null, fallback: T): T {
+  if (!value) return fallback
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return fallback
+  }
+}
+
+const intakeSchema = z.object({
+  business_name: z.string().min(1, 'Business name is required'),
+  industry: z.string().min(1, 'Industry is required'),
+  website_url: z.string().url().optional().or(z.literal('')),
+  phone: z.string().min(1, 'Phone is required'),
+  email: z.string().email('Valid email is required'),
+  location: z.string().min(1, 'Location is required'),
+  services_interested: z.array(z.string()).default([]),
+  goals: z.string().min(1, 'Goals are required'),
+  timeline: z.string().min(1, 'Timeline is required'),
+  budget_range: z.string().min(1, 'Budget range is required'),
+  brand_colors: z.array(z.string()).default([]),
+  fonts: z.string().optional().default(''),
+  social_links: z.record(z.string()).default({}),
+  platform_credentials: z.string().optional().default(''),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth()
     const formData = await request.formData()
+
+    // Extract and validate fields
+    const rawData = {
+      business_name: formData.get('business_name') as string || '',
+      industry: formData.get('industry') as string || '',
+      website_url: formData.get('website_url') as string || '',
+      phone: formData.get('phone') as string || '',
+      email: formData.get('email') as string || '',
+      location: formData.get('location') as string || '',
+      services_interested: safeParseJSON<string[]>(formData.get('services_interested') as string, []),
+      goals: formData.get('goals') as string || '',
+      timeline: formData.get('timeline') as string || '',
+      budget_range: formData.get('budget_range') as string || '',
+      brand_colors: safeParseJSON<string[]>(formData.get('brand_colors') as string, []),
+      fonts: formData.get('fonts') as string || '',
+      social_links: safeParseJSON<Record<string, string>>(formData.get('social_links') as string, {}),
+      platform_credentials: formData.get('platform_credentials') as string || '',
+    }
+
+    const validation = intakeSchema.safeParse(rawData)
+    if (!validation.success) {
+      const errors = validation.error.flatten().fieldErrors
+      return NextResponse.json({ error: 'Validation failed', errors }, { status: 400 })
+    }
+
+    const data = validation.data
 
     const supabase = await createServerSupabaseClient()
     const adminSupabase = createAdminSupabaseClient()
@@ -24,26 +78,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Client record not found' }, { status: 404 })
     }
 
-    // Parse form fields
-    const businessName = formData.get('business_name') as string
-    const industry = formData.get('industry') as string
-    const websiteUrl = formData.get('website_url') as string
-    const phone = formData.get('phone') as string
-    const email = formData.get('email') as string
-    const location = formData.get('location') as string
-    const servicesInterested = JSON.parse(formData.get('services_interested') as string || '[]')
-    const goals = formData.get('goals') as string
-    const timeline = formData.get('timeline') as string
-    const budgetRange = formData.get('budget_range') as string
-    const brandColors = JSON.parse(formData.get('brand_colors') as string || '[]')
-    const fonts = formData.get('fonts') as string
-    const socialLinks = JSON.parse(formData.get('social_links') as string || '{}')
-    const platformCredentials = formData.get('platform_credentials') as string
-
     // Encrypt platform credentials with AES-256-GCM
     let encryptedCredentials: string | null = null
-    if (platformCredentials) {
-      encryptedCredentials = encrypt(platformCredentials)
+    if (data.platform_credentials) {
+      encryptedCredentials = encrypt(data.platform_credentials)
     }
 
     // Insert intake record
@@ -51,19 +89,19 @@ export async function POST(request: NextRequest) {
       .from('project_intakes')
       .insert({
         client_id: client.id,
-        business_name: businessName,
-        industry,
-        website_url: websiteUrl || null,
-        phone,
-        email,
-        location,
-        services_interested: servicesInterested,
-        goals,
-        timeline,
-        budget_range: budgetRange,
-        brand_colors: brandColors,
-        fonts: fonts || null,
-        social_links: socialLinks,
+        business_name: data.business_name,
+        industry: data.industry,
+        website_url: data.website_url || null,
+        phone: data.phone,
+        email: data.email,
+        location: data.location,
+        services_interested: data.services_interested,
+        goals: data.goals,
+        timeline: data.timeline,
+        budget_range: data.budget_range,
+        brand_colors: data.brand_colors,
+        fonts: data.fonts || null,
+        social_links: data.social_links,
         platform_credentials_encrypted: encryptedCredentials,
         status: 'submitted',
       })
@@ -110,20 +148,20 @@ export async function POST(request: NextRequest) {
     // Update client business name if not set
     await supabase
       .from('clients')
-      .update({ business_name: businessName, phone, updated_at: new Date().toISOString() })
+      .update({ business_name: data.business_name, phone: data.phone, updated_at: new Date().toISOString() })
       .eq('id', client.id)
       .is('business_name', null)
 
     // Notify admin
     await sendEmail({
       to: 'mj@dgc.today',
-      subject: `New Project Intake: ${businessName}`,
+      subject: `New Project Intake: ${data.business_name}`,
       html: `<h2>New Project Intake Submitted</h2>
-        <p><strong>Business:</strong> ${businessName}</p>
-        <p><strong>Industry:</strong> ${industry}</p>
-        <p><strong>Services:</strong> ${servicesInterested.join(', ')}</p>
-        <p><strong>Budget:</strong> ${budgetRange}</p>
-        <p><strong>Timeline:</strong> ${timeline}</p>
+        <p><strong>Business:</strong> ${data.business_name}</p>
+        <p><strong>Industry:</strong> ${data.industry}</p>
+        <p><strong>Services:</strong> ${data.services_interested.join(', ')}</p>
+        <p><strong>Budget:</strong> ${data.budget_range}</p>
+        <p><strong>Timeline:</strong> ${data.timeline}</p>
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/clients/${client.id}">View Client Details</a></p>`,
     })
 
