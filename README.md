@@ -1,142 +1,139 @@
-<div align="center">
-  <br />
-    <a href="https://jsmastery.com/course/build-launch-your-saas-in-under-7-days" target="_blank">
-      <img src="public/readme/hero.png" alt="Project Banner">
-    </a>
-  <br />
+# DGC Client Portal
 
-  <div>
-    <img src="https://img.shields.io/badge/-Next.JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=black" alt="next.js" />
-        <img src="https://img.shields.io/badge/-Tailwind-00BCFF?style=for-the-badge&logo=tailwind-css&logoColor=white" />
-    <img src="https://img.shields.io/badge/-Clerk-6C47FF?style=for-the-badge&logoColor=white&logo=clerk" alt="next.js" />
-    <img src="https://img.shields.io/badge/-Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" />
-  </div>
+A full-stack client portal for **DGC.today** — a digital services agency. Built with Next.js 15, Clerk, Supabase, Stripe, DocuSeal, NVIDIA NIM AI, and Resend.
 
-  <h3 align="center">SaaS App - LMS with Next.js, Supabase & Payments</h3>
+## Tech Stack
 
-   <div align="center">
-     Build this project step by step with our detailed tutorial on <a href="https://jsmastery.com/course/build-launch-your-saas-in-under-7-days" target="_blank"><b>JavaScript Mastery</b></a> platform. Join the JSM family!
-    </div>
-</div>
+| Layer | Tool |
+|---|---|
+| Framework | Next.js 15 (App Router) + TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Auth | Clerk (role-based: admin + client) |
+| Database | Supabase (Postgres + RLS) |
+| File Storage | Supabase Storage |
+| Payments | Stripe (Checkout, Subscriptions, Invoices) |
+| E-signatures | DocuSeal (self-hosted Docker) |
+| AI | NVIDIA NIM API (multi-model, admin-configurable) |
+| Email | Resend |
+| Hosting | Vercel |
 
-## 📋 <a name="table">Table of Contents</a>
+## Features
 
-1. 🤖 [Introduction](#introduction)
-2. ⚙️ [Tech Stack](#tech-stack)
-3. 🔋 [Features](#features)
-4. 🤸 [Quick Start](#quick-start)
-5. 🔗 [Assets](#links)
-6. 🚀 [More](#more)
+### Client Portal (`/dashboard`)
+- **Project Intake** — 5-step onboarding wizard (business info, goals, branding, platform access, review)
+- **Content Inventory** — Product submission for e-commerce listings (single + CSV bulk upload)
+- **Service Agreement** — DocuSeal embedded signing + Stripe deposit checkout
+- **Billing** — Stripe Customer Portal for invoices, payment methods, subscription management
+- **Add-ons Marketplace** — One-click purchase of additional services
+- **Support Tickets** — Create/track tickets with threaded replies
+- **AI Chatbot** — Context-aware assistant powered by NVIDIA NIM (auto-creates tickets)
 
-## 🚨 Tutorial
+### Admin Panel (`/admin`)
+- **Dashboard** — Stats cards (clients, projects, intakes, tickets, revenue), client list, CSV export
+- **Client Detail** — Tabbed view of intake, billing, tickets, inventory per client
+- **Service Management** — Stripe product sync, pricing, active toggle, core/add-on categories
+- **Ticket Management** — Filter/sort tickets, reply as admin, update statuses
+- **Reviews** — View client feedback, filter by rating, testimonial permissions
+- **AI Settings** — Per-tool model selection from NVIDIA NIM (live model fetch), temperature/token/system prompt controls
 
-This repository contains the code corresponding to an in-depth tutorial available on our Platform, <a href="https://jsmastery.com/" target="_blank"><b>JS Mastery Pro</b></a>.
+### AI System
+- **Contract Generator** — Admin-only, generates service contracts from client intake data
+- **Proposal Writer** — Admin-only, generates project proposals
+- **Client Chatbot** — Floating widget, context-aware, auto-escalates to support tickets
+- **Product Describer** — AI-powered e-commerce listing descriptions
+- **Model Selection** — Each tool independently configurable; models fetched live from NVIDIA NIM catalog
 
-## <a name="introduction">🤖 Introduction</a>
+## Setup
 
-Supercharge your SaaS app launch with this high-powered template – packed with built-in user auth, subscriptions, and payments using Next.js, Supabase, and Stripe! Hit the ground running and turn your idea into reality faster than ever.
+### Prerequisites
+- Node.js 18+
+- A Clerk account
+- A Supabase project
+- A Stripe account (test mode)
+- NVIDIA NIM API key
+- Resend account
+- DocuSeal instance (Docker or cloud)
 
-If you're getting started and need assistance or face any bugs, join our active Discord community with over **50k+** members. It's a place where people help each other out.
-
-<a href="https://discord.com/invite/n6EdbFJ" target="_blank"><img src="https://github.com/sujatagunale/EasyRead/assets/151519281/618f4872-1e10-42da-8213-1d69e486d02e" /></a>
-
-## <a name="tech-stack">⚙️ Tech Stack</a>
-
-- **[Clerk](https://jsm.dev/converso-clerk)** is a unified platform for authentication, user management, and billing. It offers embeddable UI components, flexible APIs, and admin dashboards for secure user management. Clerk also simplifies subscription management, allowing you to define plans, create pricing pages, and control access based on subscription tiers—all in one solution.
-
-* **[Next.js](https://nextjs.org/)** is a powerful React framework that enables the development of fast, scalable web applications with features like server-side rendering, static site generation, and API routes for building full-stack applications.
-
-* **[shadcn/ui](https://ui.shadcn.com/)** is a customizable component library built on Radix UI and Tailwind CSS. It offers a modern, accessible design system with pre-built components that are easy to theme and extend, making it ideal for building polished UIs with minimal effort.
-
-- **[Supabase](https://supabase.com/)** is an open-source backend-as-a-service platform that provides instant APIs, real-time subscriptions, authentication, storage, and a PostgreSQL database, enabling developers to build scalable and secure applications with ease.
-
-* **[Tailwind CSS](https://tailwindcss.com/)** is a utility-first CSS framework that allows developers to design custom user interfaces by applying low-level utility classes directly in HTML, streamlining the design process.
-
-* **[TypeScript](https://www.typescriptlang.org/)** is a superset of JavaScript that adds static typing, providing better tooling, code quality, and error detection for developers, making it ideal for building large-scale applications.
-
-* **[Zod](https://zod.dev/)** is a TypeScript-first schema validation library that provides a simple and expressive way to define and validate data structures. Zod ensures data integrity by catching errors early during development.
-
-## <a name="features">🔋 Features</a>
-
-👉 **Authentication**: Secure user sign-up and sign-in with Clerk; Google authentication and many more.
-
-👉 **Billing & Subscriptions**: Easily manage plans, upgrades, and payment details.
-
-👉 **Code Reusability**: Leverage reusable components and a modular codebase for efficient development.
-
-👉 **Cross-Device Compatibility**: Fully responsive design that works seamlessly across all devices.
-
-👉 **Database Integration**: Uses Supabase for real-time data handling and storage needs.
-
-👉 **No opinionated UI**: Easily bring your own style to the app, without the need for removing leftover styles.
-
-👉 **Scalable Tech Stack**: Built with Next.js for a fast, production-ready web application that scales seamlessly.
-
-## <a name="quick-start">🤸 Quick Start</a>
-
-Follow these steps to set up the project locally on your machine.
-
-**Prerequisites**
-
-Make sure you have the following installed on your machine:
-
-- [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/en)
-- [npm](https://www.npmjs.com/) (Node Package Manager)
-
-**Cloning the Repository**
+### Installation
 
 ```bash
-git clone https://github.com/JavaScript-Mastery-Pro/saas-template.git
-cd saas-template
-```
-
-**Installation**
-
-Install the project dependencies using npm:
-
-```bash
+git clone https://github.com/duvallglobal/dgcportal.git
+cd dgcportal
 npm install
+cp .env.example .env.local
+# Fill in all values in .env.local
 ```
 
-**Set Up Environment Variables**
+### Database Setup
 
-Create a new file named `.env` in the root of your project and add the following content:
-
-```env
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+Run the Supabase schema migration:
+```bash
+# Apply the schema to your Supabase project
+# The schema file is at supabase/schema.sql
 ```
 
-Replace the placeholder values with your actual Supabase and Clerk credentials. You can obtain these by signing up on: [Supabase](https://supabase.com/dashboard), [Clerk](https://jsm.dev/converso-clerk).
+### Seed Stripe Products
 
-**Running the Project**
+```bash
+npx tsx scripts/seed-stripe-products.ts --test
+```
+
+This creates all 7 DGC service products in Stripe test mode and syncs them to Supabase.
+
+### Clerk Setup
+
+1. Create a Clerk application with email/password sign-up
+2. Set yourself as admin via Clerk metadata: `{ "role": "admin" }`
+3. All new sign-ups default to `client` role
+
+### Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the project.
+Open [http://localhost:3000](http://localhost:3000)
 
-## <a name="links">🔗 Assets</a>
+### Deploy to Vercel
 
-You can find the example database schema in the root of this repository.
+```bash
+vercel --prod
+```
 
-## <a name="more">🚀 More</a>
+The `vercel.json` includes a cron job for scheduled feedback emails (runs hourly).
 
-**Advance your skills with Next.js Pro Course**
+## Project Structure
 
-Enjoyed creating this project? Dive deeper into our PRO courses for a richer learning adventure. They're packed with
-detailed explanations, cool features, and exercises to boost your skills. Give it a go!
+```
+app/
+  (auth)/          # Sign-in / Sign-up pages
+  (portal)/
+    dashboard/     # Client-facing pages
+      intake/      # 5-step onboarding
+      inventory/   # Product submissions
+      agreement/   # DocuSeal signing
+      billing/     # Stripe portal
+      addons/      # Add-on marketplace
+      support/     # Ticket system
+    admin/         # Admin-only pages
+      clients/     # Client management
+      services/    # Stripe products
+      tickets/     # Support management
+      reviews/     # Feedback viewer
+      settings/    # AI model config
+  api/             # API routes
+  feedback/        # Public feedback form
+components/        # Shared UI components
+lib/               # Utilities (Stripe, Supabase, AI, Resend, DAL)
+scripts/           # Seed scripts
+```
 
-<a href="https://jsm.dev/converso-nextjs" target="_blank">
-  <img src="public/readme/jsmpro.png" alt="Project Banner">
-</a>
+## Brand
+
+- **Dark Charcoal:** `#1a1a2e`
+- **Accent Gold:** `#e2b714`
+- **White:** `#ffffff`
+
+## License
+
+Private — DGC.today
