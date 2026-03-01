@@ -1,24 +1,52 @@
-import type { NextRequest } from 'next/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
-/**
- * Next.js 16 Proxy — handles routing, rewrites, and redirects ONLY.
- * NO auth logic here. Auth is handled in the Data Access Layer (lib/dal.ts).
- */
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl
+interface ClerkPublicMetadata {
+  role?: 'admin' | 'client'
+}
 
-  // Redirect root to dashboard (auth check happens in the dashboard layout via DAL)
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/feedback(.*)',
+  '/api/webhooks(.*)',
+  '/api/feedback(.*)',
+  '/api/cron(.*)',
+])
+
+const isAdminRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/api/admin(.*)',
+])
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isPublicRoute(req)) return NextResponse.next()
+
+  const { userId, sessionClaims } = await auth()
+
+  if (!userId) {
+    const signInUrl = new URL('/sign-in', req.url)
+    signInUrl.searchParams.set('redirect_url', req.url)
+    return NextResponse.redirect(signInUrl)
+  }
+
+  if (isAdminRoute(req)) {
+    const metadata = sessionClaims?.metadata as ClerkPublicMetadata | undefined
+    const publicMetadata = sessionClaims?.publicMetadata as ClerkPublicMetadata | undefined
+    const role = metadata?.role ?? publicMetadata?.role
+
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
   }
 
   return NextResponse.next()
-}
+})
 
 export const config = {
   matcher: [
-    // Match all paths except static files and API routes that don't need proxying
-    '/((?!_next/static|_next/image|favicon.ico|api/webhooks).*)',
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
   ],
 }
