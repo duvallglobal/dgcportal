@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/dal'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/resend'
+import { encrypt } from '@/lib/encryption'
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,11 +40,10 @@ export async function POST(request: NextRequest) {
     const socialLinks = JSON.parse(formData.get('social_links') as string || '{}')
     const platformCredentials = formData.get('platform_credentials') as string
 
-    // Encrypt platform credentials at application level
+    // Encrypt platform credentials with AES-256-GCM
     let encryptedCredentials: string | null = null
     if (platformCredentials) {
-      // Base64 encode for now — replace with proper AES encryption using a KMS key
-      encryptedCredentials = Buffer.from(platformCredentials).toString('base64')
+      encryptedCredentials = encrypt(platformCredentials)
     }
 
     // Insert intake record
