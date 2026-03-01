@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Users, FileText, LifeBuoy, DollarSign, Briefcase, TrendingUp, Loader2 } from 'lucide-react'
+import { Users, FileText, LifeBuoy, DollarSign, Loader2, Search, Download, ChevronRight, Package, Activity } from 'lucide-react'
 
 interface DashboardStats {
   totalClients: number
@@ -13,95 +14,125 @@ interface DashboardStats {
   pendingIntakes: number
   openTickets: number
   revenueThisMonth: number
-  recentClients: { id: string; full_name: string | null; email: string; business_name: string | null; created_at: string }[]
-  recentTickets: { id: string; subject: string; status: string; priority: string; clients: { full_name: string | null } | null }[]
+}
+
+interface Client {
+  id: string
+  full_name: string
+  email: string
+  business_name: string | null
+  onboarding_status: string
+  created_at: string
 }
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [clients, setClients] = useState<Client[]>([])
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
-  const fetchStats = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/dashboard')
-      if (res.ok) setStats(await res.json())
+      const [statsRes, clientsRes] = await Promise.all([
+        fetch('/api/admin/dashboard/stats'),
+        fetch('/api/admin/clients'),
+      ])
+      if (statsRes.ok) setStats(await statsRes.json())
+      if (clientsRes.ok) {
+        const data = await clientsRes.json()
+        setClients(data.clients || [])
+      }
     } catch (err) { console.error(err) }
     finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { fetchStats() }, [fetchStats])
+  useEffect(() => { fetchData() }, [fetchData])
+
+  const filteredClients = clients.filter((c) =>
+    c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.email?.toLowerCase().includes(search.toLowerCase()) ||
+    c.business_name?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const exportCSV = () => {
+    const headers = 'Name,Email,Business,Status,Created\n'
+    const rows = clients.map((c) =>
+      `"${c.full_name}","${c.email}","${c.business_name || ''}","${c.onboarding_status}","${new Date(c.created_at).toLocaleDateString()}"`
+    ).join('\n')
+    const blob = new Blob([headers + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'dgc_clients.csv'; a.click()
+    URL.revokeObjectURL(url)
+  }
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
-  if (!stats) return <div className="text-center py-20 text-gray-500">Failed to load dashboard.</div>
 
-  const cards = [
-    { title: 'Total Clients', value: stats.totalClients, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'Active Projects', value: stats.activeProjects, icon: Briefcase, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Pending Intakes', value: stats.pendingIntakes, icon: FileText, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { title: 'Open Tickets', value: stats.openTickets, icon: LifeBuoy, color: 'text-red-600', bg: 'bg-red-50' },
-    { title: 'Revenue (This Month)', value: `$${(stats.revenueThisMonth / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  const statCards = [
+    { label: 'Total Clients', value: stats?.totalClients ?? 0, icon: Users, color: 'text-blue-600 bg-blue-50' },
+    { label: 'Active Projects', value: stats?.activeProjects ?? 0, icon: Activity, color: 'text-green-600 bg-green-50' },
+    { label: 'Pending Intakes', value: stats?.pendingIntakes ?? 0, icon: FileText, color: 'text-yellow-600 bg-yellow-50' },
+    { label: 'Open Tickets', value: stats?.openTickets ?? 0, icon: LifeBuoy, color: 'text-red-600 bg-red-50' },
+    { label: 'Revenue (Month)', value: `$${((stats?.revenueThisMonth ?? 0) / 100).toLocaleString()}`, icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },
   ]
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <Button variant="outline" asChild><Link href="/admin/clients">View All Clients</Link></Button>
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {cards.map((c) => (
-          <Card key={c.title}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">{c.title}</span>
-                <div className={`p-2 rounded-lg ${c.bg}`}><c.icon className={`h-4 w-4 ${c.color}`} /></div>
-              </div>
-              <div className="text-2xl font-bold">{c.value}</div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        {statCards.map((s) => (
+          <Card key={s.label}>
+            <CardContent className="pt-4 pb-4">
+              <div className={`inline-flex p-2 rounded-lg ${s.color} mb-2`}><s.icon className="h-5 w-5" /></div>
+              <div className="text-2xl font-bold">{s.value}</div>
+              <div className="text-xs text-gray-500">{s.label}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader><CardTitle className="text-base">Recent Clients</CardTitle></CardHeader>
-          <CardContent>
-            {stats.recentClients.length === 0 ? <p className="text-sm text-gray-500">No clients yet.</p> : (
-              <div className="space-y-3">
-                {stats.recentClients.map((c) => (
-                  <Link key={c.id} href={`/admin/clients/${c.id}`} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                    <div>
-                      <div className="font-medium text-sm">{c.full_name || c.email}</div>
-                      <div className="text-xs text-gray-500">{c.business_name || 'No business'}</div>
-                    </div>
-                    <span className="text-xs text-gray-400">{new Date(c.created_at).toLocaleDateString()}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle className="text-base">Open Tickets</CardTitle></CardHeader>
-          <CardContent>
-            {stats.recentTickets.length === 0 ? <p className="text-sm text-gray-500">No open tickets.</p> : (
-              <div className="space-y-3">
-                {stats.recentTickets.map((t) => (
-                  <Link key={t.id} href={`/admin/tickets/${t.id}`} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                    <div>
-                      <div className="font-medium text-sm">{t.subject}</div>
-                      <div className="text-xs text-gray-500">{t.clients?.full_name || 'Unknown client'}</div>
-                    </div>
-                    <Badge variant="outline" className="text-xs">{t.priority}</Badge>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Clients</h2>
+        <div className="flex gap-2">
+          <div className="relative">
+            <Search className="h-4 w-4 absolute left-3 top-2.5 text-gray-400" />
+            <Input placeholder="Search clients..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 w-64" />
+          </div>
+          <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
+        </div>
       </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Name</th>
+                <th className="text-left px-4 py-3 font-medium">Email</th>
+                <th className="text-left px-4 py-3 font-medium">Business</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Joined</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {filteredClients.map((c) => (
+                <tr key={c.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium">{c.full_name}</td>
+                  <td className="px-4 py-3 text-gray-500">{c.email}</td>
+                  <td className="px-4 py-3 text-gray-500">{c.business_name || '—'}</td>
+                  <td className="px-4 py-3"><Badge variant="outline">{c.onboarding_status}</Badge></td>
+                  <td className="px-4 py-3 text-gray-400">{new Date(c.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3"><Link href={`/admin/clients/${c.id}`}><ChevronRight className="h-4 w-4 text-gray-400" /></Link></td>
+                </tr>
+              ))}
+              {filteredClients.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No clients found.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
     </div>
   )
 }
