@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
         const data = await clientsRes.json()
         setClients(data.clients || [])
       }
-    } catch (_err) { console.error(_err) }
+    } catch (err) { console.error(err) }
     finally { setLoading(false) }
   }, [])
 

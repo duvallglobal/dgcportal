@@ -32,8 +32,8 @@ export default function ChatPage() {
         const data = await res.json()
         setMessages(data.messages || [])
       }
-    } catch (_err) {
-      console.error('Failed to fetch chat history:', _err)
+    } catch (err) {
+      console.error('Failed to fetch chat history:', err)
     } finally {
       setLoading(false)
     }
@@ -71,7 +71,7 @@ export default function ChatPage() {
       } else {
         setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again or contact support.' }])
       }
-    } catch (_err) {
+    } catch (err) {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Connection error. Please check your internet and try again.' }])
     } finally {
       setSending(false)

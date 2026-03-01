@@ -41,8 +41,8 @@ export default function SupportPage() {
         const data = await res.json()
         setTickets(data.tickets || [])
       }
-    } catch (_err) {
-      console.error('Failed to fetch tickets:', _err)
+    } catch (err) {
+      console.error('Failed to fetch tickets:', err)
     } finally {
       setLoading(false)
     }

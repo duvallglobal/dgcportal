@@ -131,8 +131,8 @@ export default function IntakePage() {
       if (!res.ok) throw new Error('Submission failed')
 
       setSubmitted(true)
-    } catch (_err) {
-      console.error(_err)
+    } catch (err) {
+      console.error(err)
       alert('Submission failed. Please try again.')
     } finally {
       setSubmitting(false)

@@ -38,8 +38,8 @@ export default function AdminServicesPage() {
         const data = await res.json()
         setServices(data.services || [])
       }
-    } catch (_err) {
-      console.error('Failed to fetch services:', _err)
+    } catch (err) {
+      console.error('Failed to fetch services:', err)
     } finally {
       setLoading(false)
     }
@@ -61,8 +61,8 @@ export default function AdminServicesPage() {
         setSaved(serviceId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (_err) {
-      console.error('Update error:', _err)
+    } catch (err) {
+      console.error('Update error:', err)
     } finally {
       setSaving(null)
     }
@@ -87,8 +87,8 @@ export default function AdminServicesPage() {
         setSaved(serviceId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (_err) {
-      console.error('Price set error:', _err)
+    } catch (err) {
+      console.error('Price set error:', err)
     } finally {
       setSaving(null)
     }

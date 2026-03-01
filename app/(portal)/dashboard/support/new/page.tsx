@@ -38,8 +38,8 @@ export default function NewTicketPage() {
       } else {
         alert('Failed to create ticket. Please try again.')
       }
-    } catch (_err) {
-      console.error('Ticket creation error:', _err)
+    } catch (err) {
+      console.error('Ticket creation error:', err)
       alert('Failed to create ticket.')
     } finally {
       setSubmitting(false)

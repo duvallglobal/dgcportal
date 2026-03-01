@@ -59,8 +59,8 @@ export default function BillingPage() {
         setPayments(data.payments || [])
         setSubscriptions(data.subscriptions || [])
       }
-    } catch (_err) {
-      console.error('Failed to fetch billing:', _err)
+    } catch (err) {
+      console.error('Failed to fetch billing:', err)
     } finally {
       setLoading(false)
     }
@@ -75,8 +75,8 @@ export default function BillingPage() {
       const data = await res.json()
       if (data.url) window.location.href = data.url
       else alert(data.error || 'Could not open billing portal')
-    } catch (_err) {
-      console.error('Portal error:', _err)
+    } catch (err) {
+      console.error('Portal error:', err)
     } finally {
       setPortalLoading(false)
     }

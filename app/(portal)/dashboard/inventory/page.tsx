@@ -56,7 +56,7 @@ export default function InventoryPage() {
         const data = await res.json()
         setProducts(data.products || [])
       }
-    } catch (_err) { console.error(_err) }
+    } catch (err) { console.error(err) }
     finally { setLoading(false) }
   }, [])
 
@@ -77,7 +77,7 @@ export default function InventoryPage() {
         setShowForm(false)
         await fetchProducts()
       }
-    } catch (_err) { console.error(_err) }
+    } catch (err) { console.error(err) }
     finally { setSubmitting(false) }
   }
 
@@ -94,7 +94,7 @@ export default function InventoryPage() {
       } else {
         alert('CSV import failed. Check format and try again.')
       }
-    } catch (_err) { console.error(_err) }
+    } catch (err) { console.error(err) }
     finally { setCsvUploading(false) }
   }
 
@@ -109,7 +109,7 @@ export default function InventoryPage() {
       if (res.ok) {
         await fetchProducts()
       }
-    } catch (_err) { console.error(_err) }
+    } catch (err) { console.error(err) }
     finally { setAiGenerating(null) }
   }
 
