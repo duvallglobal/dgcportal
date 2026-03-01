@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/resend'
 import { encrypt } from '@/lib/encryption'
+import { safeErrorMessage } from '@/lib/api-error'
 import { z } from 'zod'
 
 function safeParseJSON<T>(value: string | null, fallback: T): T {
@@ -18,17 +19,11 @@ function safeParseJSON<T>(value: string | null, fallback: T): T {
 function sanitizeFileName(name: string): string {
   const ext = name.lastIndexOf('.') > 0 ? name.slice(name.lastIndexOf('.')) : ''
   let base = name.slice(0, name.length - ext.length)
-  // Remove non-ASCII characters
   base = base.replace(/[^\x20-\x7E]/g, '')
-  // Replace spaces and unsafe URL characters with hyphens
   base = base.replace(/[\s#?&%+=/\\:*"<>|{}^`\[\]]/g, '-')
-  // Collapse consecutive hyphens
   base = base.replace(/-{2,}/g, '-')
-  // Trim leading/trailing hyphens
   base = base.replace(/^-+|-+$/g, '')
-  // Fallback if name is empty after sanitization
   if (!base) base = 'upload'
-  // Enforce max length
   base = base.slice(0, 200)
   return base + ext.toLowerCase()
 }
@@ -126,7 +121,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to save intake' }, { status: 500 })
     }
 
-    // Upload files to Supabase Storage
     const fileKeys = Array.from(formData.keys()).filter((k) => k.startsWith('file_'))
     for (const key of fileKeys) {
       const file = formData.get(key) as File
@@ -165,8 +159,9 @@ export async function POST(request: NextRequest) {
       .eq('id', client.id)
       .is('business_name', null)
 
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@dgc.today'
     await sendEmail({
-      to: 'mj@dgc.today',
+      to: adminEmail,
       subject: `New Project Intake: ${data.business_name}`,
       html: `<h2>New Project Intake Submitted</h2>
         <p><strong>Business:</strong> ${data.business_name}</p>
@@ -178,8 +173,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ success: true, intakeId: intake.id })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Intake submission error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 })
   }
 }

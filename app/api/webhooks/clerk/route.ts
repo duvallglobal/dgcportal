@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createAdminSupabaseClient()
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@dgc.today'
 
   if (event.type === 'user.created') {
     const { id, email_addresses, first_name, last_name, public_metadata } = event.data
@@ -51,9 +52,8 @@ export async function POST(request: NextRequest) {
       { onConflict: 'clerk_user_id' }
     )
 
-    // Notify admin of new sign-up
     await sendEmail({
-      to: 'mj@dgc.today',
+      to: adminEmail,
       subject: `New Client Sign-Up: ${fullName || email}`,
       html: `<h2>New Client Registration</h2><p><strong>Name:</strong> ${fullName || 'Not provided'}</p><p><strong>Email:</strong> ${email}</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/clients">View in Admin Panel</a></p>`,
     })
