@@ -26,7 +26,7 @@ export async function GET() {
       payments: paymentsRes.data || [],
       subscriptions: subsRes.data || [],
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

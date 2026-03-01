@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Checkout error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

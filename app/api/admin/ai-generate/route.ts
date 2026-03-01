@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
     return new NextResponse(content, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI generation error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

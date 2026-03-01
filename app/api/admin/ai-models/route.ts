@@ -7,7 +7,7 @@ export async function GET() {
     await requireAdmin()
     const models = await fetchAvailableModels()
     return NextResponse.json({ models })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch NVIDIA models:', error)
     return NextResponse.json({ error: error.message, models: [] }, { status: 500 })
   }

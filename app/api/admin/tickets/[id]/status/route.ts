@@ -28,7 +28,7 @@ export async function PUT(
     }
 
     return NextResponse.json({ ticket })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

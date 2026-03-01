@@ -40,7 +40,7 @@ export async function GET() {
         'Content-Disposition': `attachment; filename="dgc-clients-${new Date().toISOString().split('T')[0]}.csv"`,
       },
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

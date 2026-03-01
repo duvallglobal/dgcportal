@@ -13,8 +13,8 @@ export async function GET() {
       .order('tool_name')
 
     return NextResponse.json({ settings: settings || [] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -39,11 +39,11 @@ export async function PUT(request: NextRequest) {
       .eq('tool_name', tool_name)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

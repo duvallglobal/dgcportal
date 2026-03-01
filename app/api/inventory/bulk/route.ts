@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
     if (rows.length === 0) return NextResponse.json({ error: 'No valid rows found' }, { status: 400 })
 
     const { error } = await supabase.from('content_inventory').insert(rows)
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 
     return NextResponse.json({ count: rows.length })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

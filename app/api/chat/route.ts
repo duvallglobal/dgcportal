@@ -27,8 +27,8 @@ export async function GET() {
       .limit(100)
 
     return NextResponse.json({ messages: messages || [] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ reply, suggestTicket })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Chat error:', error)
     return NextResponse.json(
       { reply: 'Sorry, I\'m having trouble connecting right now. Please try again or open a support ticket.', suggestTicket: true },

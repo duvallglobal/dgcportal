@@ -23,7 +23,7 @@ export async function POST(
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 
     await supabase.from('support_tickets').update({ updated_at: new Date().toISOString() }).eq('id', params.id)
 
@@ -43,7 +43,7 @@ export async function POST(
     }
 
     return NextResponse.json({ reply })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

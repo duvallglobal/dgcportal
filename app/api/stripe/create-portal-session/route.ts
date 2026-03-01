@@ -27,8 +27,8 @@ export async function POST(_request: NextRequest) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Portal session error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

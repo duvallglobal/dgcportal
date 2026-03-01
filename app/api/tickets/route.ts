@@ -18,8 +18,8 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     return NextResponse.json({ tickets: tickets || [] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 
     // Notify admin
     await sendEmail({
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }).catch(console.error)
 
     return NextResponse.json({ ticket })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
     const { data } = await query
     return NextResponse.json({ products: data || [] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -32,9 +32,9 @@ export async function PUT(request: NextRequest) {
     if (admin_notes !== undefined) updates.admin_notes = admin_notes
 
     const { data, error } = await supabase.from('content_inventory').update(updates).eq('id', productId).select().single()
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     return NextResponse.json({ product: data })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -25,8 +25,8 @@ export async function GET(
         amount: sub.items.data[0]?.price?.unit_amount || 0,
       } : null,
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -61,7 +61,7 @@ export async function POST(
     })
 
     return NextResponse.json({ subscriptionId: subscription.id })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
