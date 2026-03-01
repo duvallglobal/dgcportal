@@ -50,7 +50,7 @@ export default function AdminInventoryPage() {
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
-  const updateProduct = async (productId: string, updates: Record<string, any>) => {
+  const updateProduct = async (productId: string, updates: Record<string, string | number | null>) => {
     setSaving(productId)
     try {
       const res = await fetch('/api/admin/inventory', {

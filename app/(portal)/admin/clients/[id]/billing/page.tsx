@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -22,7 +22,7 @@ export default function AdminClientBillingPage() {
   const clientId = params.id as string
   const [plans, setPlans] = useState<Plan[]>([])
   const [selectedPlan, setSelectedPlan] = useState('')
-  const [currentSub, setCurrentSub] = useState<any>(null)
+  const [currentSub, setCurrentSub] = useState<{ plan_name?: string; amount?: number; status: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [assigning, setAssigning] = useState(false)
 
@@ -34,7 +34,7 @@ export default function AdminClientBillingPage() {
       ])
       if (plansRes.ok) {
         const data = await plansRes.json()
-        setPlans((data.services || []).filter((s: any) => s.stripe_price_id))
+        setPlans((data.services || []).filter((s: Plan) => s.stripe_price_id))
       }
       if (subRes.ok) {
         const data = await subRes.json()

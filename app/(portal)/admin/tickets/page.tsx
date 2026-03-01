@@ -17,7 +17,15 @@ interface Ticket {
   priority: string
   created_at: string
   clients: { full_name: string; email: string; business_name: string | null } | null
-  replies?: any[]
+  replies?: Reply[]
+}
+
+interface Reply {
+  id: string
+  sender_role: string
+  sender_name?: string
+  content: string
+  created_at: string
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -155,7 +163,7 @@ export default function AdminTicketsPage() {
 
                 {expanded === t.id && (
                   <div className="mt-4 border-t pt-4 space-y-3">
-                    {(t.replies || []).map((r: any) => (
+                    {(t.replies || []).map((r: Reply) => (
                       <div key={r.id} className={cn('text-sm p-3 rounded', r.sender_role === 'admin' ? 'bg-purple-50' : 'bg-gray-50')}>
                         <div className="text-xs text-gray-500 mb-1">{r.sender_name || r.sender_role} · {new Date(r.created_at).toLocaleString()}</div>
                         <div>{r.content}</div>
