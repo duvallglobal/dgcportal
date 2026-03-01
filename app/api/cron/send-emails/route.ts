@@ -20,7 +20,7 @@ export async function GET(request: Request) {
       .from('scheduled_emails')
       .select('*')
       .eq('status', 'pending')
-      .lte('send_at', now)
+      .lte('scheduled_for', now)
       .limit(50)
 
     if (!emails || emails.length === 0) {
@@ -34,12 +34,14 @@ export async function GET(request: Request) {
         await supabase.from('scheduled_emails').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', email.id)
         sent++
       } catch (err) {
+        console.error(`Failed to send email ${email.id}:`, err)
         await supabase.from('scheduled_emails').update({ status: 'failed', error: String(err) }).eq('id', email.id)
       }
     }
 
     return NextResponse.json({ sent })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('Cron send-emails error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
