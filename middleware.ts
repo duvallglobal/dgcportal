@@ -1,6 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
+interface ClerkPublicMetadata {
+  role?: 'admin' | 'client'
+}
+
 const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
@@ -28,7 +32,11 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (isAdminRoute(req)) {
-    const role = (sessionClaims?.metadata as any)?.role
+    // Check both metadata (Clerk session template) and publicMetadata (direct JWT claim)
+    const metadata = sessionClaims?.metadata as ClerkPublicMetadata | undefined
+    const publicMetadata = sessionClaims?.publicMetadata as ClerkPublicMetadata | undefined
+    const role = metadata?.role ?? publicMetadata?.role
+
     if (role !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
