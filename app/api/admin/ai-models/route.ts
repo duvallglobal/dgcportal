@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json({ models })
   } catch (error: unknown) {
     console.error('Failed to fetch NVIDIA models:', error)
-    return NextResponse.json({ error: error.message, models: [] }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error', models: [] }, { status: 500 })
   }
 }
