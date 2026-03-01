@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -41,7 +41,46 @@ const SUB_STATUS: Record<string, { label: string; color: string }> = {
   paused: { label: 'Paused', color: 'bg-yellow-100 text-yellow-800' },
 }
 
-export default function BillingPage() {
+function BillingSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto animate-pulse">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+        <div>
+          <div className="h-8 w-24 bg-gray-200 rounded mb-2" />
+          <div className="h-4 w-72 bg-gray-100 rounded" />
+        </div>
+        <div className="h-10 w-52 bg-gray-200 rounded" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardContent className="pt-6">
+              <div className="h-4 w-20 bg-gray-200 rounded mb-3" />
+              <div className="h-8 w-16 bg-gray-200 rounded" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CardHeader>
+          <div className="h-5 w-36 bg-gray-200 rounded" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center justify-between py-3 border-b last:border-0">
+              <div className="h-4 w-24 bg-gray-200 rounded" />
+              <div className="h-4 w-40 bg-gray-100 rounded" />
+              <div className="h-4 w-16 bg-gray-200 rounded" />
+              <div className="h-6 w-12 bg-gray-100 rounded-full" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function BillingContent() {
   const searchParams = useSearchParams()
   const [payments, setPayments] = useState<Payment[]>([])
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
@@ -82,11 +121,11 @@ export default function BillingPage() {
     }
   }
 
-  if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
-  }
+  if (loading) return <BillingSkeleton />
 
-  const totalPaid = payments.filter((p) => p.status === 'succeeded').reduce((sum, p) => sum + p.amount, 0)
+  const totalPaid = payments
+    .filter((p) => p.status === 'succeeded')
+    .reduce((sum, p) => sum + p.amount, 0)
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -96,7 +135,9 @@ export default function BillingPage() {
           <p className="text-gray-500 mt-1">View your payment history and manage your subscription.</p>
         </div>
         <Button onClick={openPortal} disabled={portalLoading} variant="outline">
-          {portalLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ExternalLink className="h-4 w-4 mr-2" />}
+          {portalLoading
+            ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            : <ExternalLink className="h-4 w-4 mr-2" />}
           Manage Payment Method
         </Button>
       </div>
@@ -114,7 +155,6 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <Card>
           <CardContent className="pt-6">
@@ -131,16 +171,19 @@ export default function BillingPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-gray-500">Active Subscriptions</div>
-            <div className="text-2xl font-bold">{subscriptions.filter((s) => s.status === 'active').length}</div>
+            <div className="text-2xl font-bold">
+              {subscriptions.filter((s) => s.status === 'active').length}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Active Subscriptions */}
       {subscriptions.length > 0 && (
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2"><Calendar className="h-5 w-5" /> Subscriptions</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Calendar className="h-5 w-5" /> Subscriptions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -151,7 +194,9 @@ export default function BillingPage() {
                     <div>
                       <div className="font-medium text-sm">Monthly Retainer</div>
                       {sub.current_period_end && (
-                        <div className="text-xs text-gray-500">Next billing: {new Date(sub.current_period_end).toLocaleDateString()}</div>
+                        <div className="text-xs text-gray-500">
+                          Next billing: {new Date(sub.current_period_end).toLocaleDateString()}
+                        </div>
                       )}
                     </div>
                     <Badge className={status.color}>{status.label}</Badge>
@@ -163,10 +208,11 @@ export default function BillingPage() {
         </Card>
       )}
 
-      {/* Payment History */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2"><Receipt className="h-5 w-5" /> Payment History</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Receipt className="h-5 w-5" /> Payment History
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {payments.length === 0 ? (
@@ -192,10 +238,12 @@ export default function BillingPage() {
                     return (
                       <tr key={payment.id} className="border-b last:border-0">
                         <td className="py-3">{new Date(payment.created_at).toLocaleDateString()}</td>
-                        <td className="py-3">{payment.description || '—'}</td>
-                        <td className="py-3 capitalize">{payment.payment_type?.replace('_', ' ') || '—'}</td>
+                        <td className="py-3">{payment.description || '\u2014'}</td>
+                        <td className="py-3 capitalize">{payment.payment_type?.replace('_', ' ') || '\u2014'}</td>
                         <td className="py-3 text-right font-medium">${(payment.amount / 100).toFixed(2)}</td>
-                        <td className="py-3 text-right"><Badge className={status.color}>{status.label}</Badge></td>
+                        <td className="py-3 text-right">
+                          <Badge className={status.color}>{status.label}</Badge>
+                        </td>
                       </tr>
                     )
                   })}
@@ -206,5 +254,13 @@ export default function BillingPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={<BillingSkeleton />}>
+      <BillingContent />
+    </Suspense>
   )
 }
