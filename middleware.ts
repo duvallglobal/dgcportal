@@ -1,38 +1,47 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/admin(.*)',
+interface ClerkPublicMetadata {
+  role?: 'admin' | 'client'
+}
+
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/feedback(.*)',
+  '/api/webhooks(.*)',
+  '/api/feedback(.*)',
+  '/api/cron(.*)',
 ])
 
 const isAdminRoute = createRouteMatcher([
   '/admin(.*)',
+  '/api/admin(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    const session = await auth()
+  if (isPublicRoute(req)) return NextResponse.next()
 
-    if (!session.userId) {
-      return session.redirectToSignIn()
-    }
+  const { userId, sessionClaims } = await auth()
 
-    if (isAdminRoute(req)) {
-      const metadata = session.sessionClaims?.metadata as
-        | { role?: 'admin' | 'client' }
-        | undefined
-      const publicMetadata = session.sessionClaims?.publicMetadata as
-        | { role?: 'admin' | 'client' }
-        | undefined
+  if (!userId) {
+    const signInUrl = new URL('/sign-in', req.url)
+    signInUrl.searchParams.set('redirect_url', req.url)
+    return NextResponse.redirect(signInUrl)
+  }
 
-      const role = metadata?.role ?? publicMetadata?.role
+  if (isAdminRoute(req)) {
+    const metadata = sessionClaims?.metadata as ClerkPublicMetadata | undefined
+    const publicMetadata = sessionClaims?.publicMetadata as ClerkPublicMetadata | undefined
+    const role = metadata?.role ?? publicMetadata?.role
 
-      if (role !== 'admin') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
     }
   }
+
+  return NextResponse.next()
 })
 
 export const config = {
