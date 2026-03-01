@@ -41,7 +41,7 @@ export default function GeneratePage() {
         const data = await res.json()
         setClientData(data.client)
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch client:', err)
     } finally {
       setLoading(false)
@@ -74,7 +74,7 @@ export default function GeneratePage() {
           setGeneratedContent((prev) => prev + chunk)
         }
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Generation error:', err)
       alert('Failed to generate document. Check AI settings.')
     } finally {
@@ -101,7 +101,7 @@ export default function GeneratePage() {
       } else {
         alert('Failed to push to DocuSeal.')
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Push error:', err)
     } finally {
       setPushing(false)

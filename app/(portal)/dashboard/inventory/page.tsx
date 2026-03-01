@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Package, Plus, Upload, Download, Loader2, Image as ImageIcon, Wand2, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -57,7 +56,7 @@ export default function InventoryPage() {
         const data = await res.json()
         setProducts(data.products || [])
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setLoading(false) }
   }, [])
 
@@ -78,7 +77,7 @@ export default function InventoryPage() {
         setShowForm(false)
         await fetchProducts()
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setSubmitting(false) }
   }
 
@@ -95,7 +94,7 @@ export default function InventoryPage() {
       } else {
         alert('CSV import failed. Check format and try again.')
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setCsvUploading(false) }
   }
 
@@ -110,7 +109,7 @@ export default function InventoryPage() {
       if (res.ok) {
         await fetchProducts()
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setAiGenerating(null) }
   }
 

@@ -31,7 +31,7 @@ export default function FeedbackPage() {
       })
       if (res.ok) setSubmitted(true)
       else alert('Failed to submit. The link may have expired.')
-    } catch (err) { alert('Submission failed.') }
+    } catch (_err) { alert('Submission failed.') }
     finally { setSubmitting(false) }
   }
 

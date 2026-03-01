@@ -50,7 +50,7 @@ export default function AdminAISettingsPage() {
         const data = await res.json()
         setTools(data.settings || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch AI settings:', err)
     } finally {
       setLoading(false)
@@ -68,7 +68,7 @@ export default function AdminAISettingsPage() {
       } else {
         setError('Failed to fetch models from NVIDIA NIM. Check your API key.')
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Could not connect to NVIDIA NIM API.')
     } finally {
       setModelsLoading(false)
@@ -106,7 +106,7 @@ export default function AdminAISettingsPage() {
         setSaved(tool.tool_name)
         setTimeout(() => setSaved(null), 3000)
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to save:', err)
     } finally {
       setSaving(null)

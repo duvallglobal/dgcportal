@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { FileSignature, CheckCircle, CreditCard, Loader2, AlertCircle, Clock, Shield } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface Agreement {
   id: string
@@ -47,7 +46,7 @@ export default function AgreementPage() {
         const data = await res.json()
         setAgreements(data.agreements || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch agreements:', err)
     } finally {
       setLoading(false)
@@ -74,7 +73,7 @@ export default function AgreementPage() {
         setSignedName('')
         setConsent(false)
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Signing error:', err)
       alert('Failed to sign agreement. Please try again.')
     } finally {
@@ -91,7 +90,7 @@ export default function AgreementPage() {
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
-    } catch (err) {
+    } catch (_err) {
       console.error('Deposit payment error:', err)
     }
   }
@@ -130,7 +129,7 @@ export default function AgreementPage() {
           <CardContent className="py-12 text-center">
             <FileSignature className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-600">No Agreements Yet</h3>
-            <p className="text-sm text-gray-500 mt-2">Once your project intake is reviewed, we'll prepare a service agreement for you to sign here.</p>
+            <p className="text-sm text-gray-500 mt-2">Once your project intake is reviewed, we&apos;ll prepare a service agreement for you to sign here.</p>
           </CardContent>
         </Card>
       ) : (

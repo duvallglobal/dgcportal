@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (service.stripe_price_id) {
       try {
         await stripe.prices.update(service.stripe_price_id, { active: false })
-      } catch (e) {
+      } catch (_e) {
         // Old price might not exist, continue
       }
     }

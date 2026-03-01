@@ -9,7 +9,7 @@ import { stripe } from '@/lib/stripe'
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth()
+    const _user = await requireAuth()
     const body = await request.json()
     const { agreementId, signedName, consentChecked } = body
 

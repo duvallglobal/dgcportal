@@ -2,7 +2,6 @@
 
 import type { IntakeFormData } from '@/app/(portal)/dashboard/intake/page'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 
 const DGC_SERVICES = [
   'Website Development',

@@ -6,8 +6,8 @@ import { UserButton } from '@clerk/nextjs'
 import { useUser } from '@clerk/nextjs'
 import {
   LayoutDashboard, FileText, Package, FileSignature, CreditCard,
-  ShoppingBag, LifeBuoy, MessageCircle, Settings, Users, Tag,
-  Star, Cpu, AlertTriangle, ChevronLeft, ChevronRight, Menu, X
+  ShoppingBag, LifeBuoy, Users, Tag,
+  Star, Cpu, AlertTriangle, Menu, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, Loader2, FileText, CreditCard, LifeBuoy, Package, MessageCircle, User } from 'lucide-react'
+import { ArrowLeft, Loader2, CreditCard, User } from 'lucide-react'
 
 interface ClientDetail {
   client: any
@@ -29,7 +29,7 @@ export default function AdminClientDetailPage() {
     try {
       const res = await fetch(`/api/admin/clients/${clientId}`)
       if (res.ok) setData(await res.json())
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setLoading(false) }
   }, [clientId])
 

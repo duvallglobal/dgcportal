@@ -29,7 +29,7 @@ export default function AdminReviewsPage() {
         const data = await res.json()
         setReviews(data.reviews || [])
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setLoading(false) }
   }, [ratingFilter])
 

@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, Package, MessageSquare, Save, CheckCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -45,7 +44,7 @@ export default function AdminInventoryPage() {
         const data = await res.json()
         setProducts(data.products || [])
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setLoading(false) }
   }, [statusFilter])
 
@@ -64,7 +63,7 @@ export default function AdminInventoryPage() {
         setSaved(productId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setSaving(null); setEditingNotes(null) }
   }
 

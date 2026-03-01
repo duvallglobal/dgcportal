@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MessageCircle, Send, Loader2, Bot, User, LifeBuoy } from 'lucide-react'
+import { Send, Loader2, Bot, User, LifeBuoy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Message {
@@ -32,7 +32,7 @@ export default function ChatPage() {
         const data = await res.json()
         setMessages(data.messages || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch chat history:', err)
     } finally {
       setLoading(false)
@@ -71,7 +71,7 @@ export default function ChatPage() {
       } else {
         setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again or contact support.' }])
       }
-    } catch (err) {
+    } catch (_err) {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Connection error. Please check your internet and try again.' }])
     } finally {
       setSending(false)

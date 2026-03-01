@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,7 +38,7 @@ export default function NewTicketPage() {
       } else {
         alert('Failed to create ticket. Please try again.')
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Ticket creation error:', err)
       alert('Failed to create ticket.')
     } finally {
@@ -50,7 +50,7 @@ export default function NewTicketPage() {
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">New Support Ticket</h1>
-        <p className="text-gray-500 mt-1">Describe your issue and we'll get back to you as soon as possible.</p>
+        <p className="text-gray-500 mt-1">Describe your issue and we&apos;ll get back to you as soon as possible.</p>
       </div>
 
       <Card>

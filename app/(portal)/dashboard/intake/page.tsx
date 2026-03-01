@@ -131,7 +131,7 @@ export default function IntakePage() {
       if (!res.ok) throw new Error('Submission failed')
 
       setSubmitted(true)
-    } catch (err) {
+    } catch (_err) {
       console.error(err)
       alert('Submission failed. Please try again.')
     } finally {
@@ -372,7 +372,7 @@ export default function IntakePage() {
                     className="font-mono text-sm"
                   />
                 </div>
-                <p className="text-xs text-gray-500">You can always update this information later from your dashboard. Only share what you're comfortable with — we'll request any additional access as needed.</p>
+                <p className="text-xs text-gray-500">You can always update this information later from your dashboard. Only share what you&apos;re comfortable with — we&apos;ll request any additional access as needed.</p>
               </div>
             </>
           )}

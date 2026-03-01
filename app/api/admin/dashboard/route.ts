@@ -27,7 +27,7 @@ export async function GET() {
       revenueThisMonth = charges.data
         .filter((c) => c.status === 'succeeded')
         .reduce((sum, c) => sum + c.amount, 0)
-    } catch (e) {
+    } catch (_e) {
       console.error('Stripe revenue fetch error:', e)
     }
 

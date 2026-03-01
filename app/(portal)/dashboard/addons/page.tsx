@@ -43,7 +43,7 @@ export default function AddonsPage() {
         setServices(data.services || [])
         setPurchased(data.purchased || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch addons:', err)
     } finally {
       setLoading(false)
@@ -66,7 +66,7 @@ export default function AddonsPage() {
       } else {
         alert(data.error || 'Failed to start checkout')
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Purchase error:', err)
     } finally {
       setPurchasing(null)

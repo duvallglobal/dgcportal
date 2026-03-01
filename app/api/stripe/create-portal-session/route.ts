@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe'
 import { requireAuth } from '@/lib/dal'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const user = await requireAuth()
     const supabase = await createServerSupabaseClient()

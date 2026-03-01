@@ -27,7 +27,7 @@ export async function GET() {
       revenueThisMonth = charges.data
         .filter((c) => c.paid && !c.refunded)
         .reduce((sum, c) => sum + c.amount, 0)
-    } catch (e) {
+    } catch (_e) {
       // Stripe may not be configured yet
     }
 

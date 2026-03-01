@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Package, DollarSign, Save, Loader2, CheckCircle, ExternalLink, Tag } from 'lucide-react'
+import { Package, DollarSign, Loader2, CheckCircle, Tag } from 'lucide-react'
 
 interface Service {
   id: string
@@ -40,7 +38,7 @@ export default function AdminServicesPage() {
         const data = await res.json()
         setServices(data.services || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch services:', err)
     } finally {
       setLoading(false)
@@ -63,7 +61,7 @@ export default function AdminServicesPage() {
         setSaved(serviceId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Update error:', err)
     } finally {
       setSaving(null)
@@ -89,7 +87,7 @@ export default function AdminServicesPage() {
         setSaved(serviceId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Price set error:', err)
     } finally {
       setSaving(null)

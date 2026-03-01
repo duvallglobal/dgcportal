@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Users, FileText, LifeBuoy, DollarSign, Loader2, Search, Download, ChevronRight, Package, Activity } from 'lucide-react'
+import { Users, FileText, LifeBuoy, DollarSign, Loader2, Search, Download, ChevronRight, Activity } from 'lucide-react'
 
 interface DashboardStats {
   totalClients: number
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
         const data = await clientsRes.json()
         setClients(data.clients || [])
       }
-    } catch (err) { console.error(err) }
+    } catch (_err) { console.error(err) }
     finally { setLoading(false) }
   }, [])
 

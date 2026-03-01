@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LifeBuoy, Plus, Loader2, MessageCircle, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface Ticket {
   id: string
@@ -42,7 +41,7 @@ export default function SupportPage() {
         const data = await res.json()
         setTickets(data.tickets || [])
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch tickets:', err)
     } finally {
       setLoading(false)
