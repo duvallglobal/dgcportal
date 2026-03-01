@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,12 +22,35 @@ interface Agreement {
 
 const STATUS_CONFIG = {
   unsigned: { label: 'Unsigned', color: 'bg-gray-100 text-gray-700', icon: FileSignature },
-  signed_awaiting_deposit: { label: 'Signed — Awaiting Deposit', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+  signed_awaiting_deposit: { label: 'Signed \u2014 Awaiting Deposit', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
   deposit_paid: { label: 'Deposit Paid', color: 'bg-blue-100 text-blue-800', icon: CreditCard },
   active: { label: 'Active', color: 'bg-green-100 text-green-800', icon: CheckCircle },
 }
 
-export default function AgreementPage() {
+function AgreementSkeleton() {
+  return (
+    <div className="max-w-3xl mx-auto animate-pulse">
+      <div className="mb-8">
+        <div className="h-8 w-48 bg-gray-200 rounded mb-2" />
+        <div className="h-4 w-96 bg-gray-100 rounded" />
+      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="h-5 w-36 bg-gray-200 rounded" />
+          <div className="h-6 w-28 bg-gray-100 rounded-full" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2, 3].map((i) => <div key={i} className="h-4 w-32 bg-gray-100 rounded" />)}
+          </div>
+          <div className="h-10 w-44 bg-gray-200 rounded" />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function AgreementContent() {
   const searchParams = useSearchParams()
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,13 +118,7 @@ export default function AgreementPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
-    )
-  }
+  if (loading) return <AgreementSkeleton />
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -129,7 +146,9 @@ export default function AgreementPage() {
           <CardContent className="py-12 text-center">
             <FileSignature className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-600">No Agreements Yet</h3>
-            <p className="text-sm text-gray-500 mt-2">Once your project intake is reviewed, we&apos;ll prepare a service agreement for you to sign here.</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Once your project intake is reviewed, we&apos;ll prepare a service agreement for you to sign here.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -150,17 +169,25 @@ export default function AgreementPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div><span className="text-gray-500">Created:</span> {new Date(agreement.created_at).toLocaleDateString()}</div>
-                    {agreement.signed_at && <div><span className="text-gray-500">Signed:</span> {new Date(agreement.signed_at).toLocaleDateString()}</div>}
-                    {agreement.deposit_amount && <div><span className="text-gray-500">Deposit:</span> ${(agreement.deposit_amount / 100).toFixed(2)}</div>}
+                    {agreement.signed_at && (
+                      <div><span className="text-gray-500">Signed:</span> {new Date(agreement.signed_at).toLocaleDateString()}</div>
+                    )}
+                    {agreement.deposit_amount && (
+                      <div><span className="text-gray-500">Deposit:</span> ${(agreement.deposit_amount / 100).toFixed(2)}</div>
+                    )}
                   </div>
 
                   {agreement.signed_pdf_url && (
-                    <a href={agreement.signed_pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700">
+                    <a
+                      href={agreement.signed_pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                    >
                       <FileSignature className="h-4 w-4" /> View Signed Agreement (PDF)
                     </a>
                   )}
 
-                  {/* Unsigned: show signing form */}
                   {agreement.status === 'unsigned' && (
                     <>
                       {signingId === agreement.id ? (
@@ -180,30 +207,48 @@ export default function AgreementPage() {
                             />
                           </div>
                           <div className="flex items-start gap-3">
-                            <Checkbox id="consent" checked={consent} onCheckedChange={(c) => setConsent(!!c)} />
+                            <Checkbox
+                              id="consent"
+                              checked={consent}
+                              onCheckedChange={(c) => setConsent(!!c)}
+                            />
                             <label htmlFor="consent" className="text-sm text-gray-600 cursor-pointer">
-                              I have read and agree to the terms of this service agreement. I understand that my typed name, IP address, and timestamp will be recorded as my electronic signature.
+                              I have read and agree to the terms of this service agreement. I understand that my typed name,
+                              IP address, and timestamp will be recorded as my electronic signature.
                             </label>
                           </div>
                           <div className="flex gap-3">
-                            <Button onClick={() => handleSign(agreement.id)} disabled={!signedName.trim() || !consent || submitting}>
-                              {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Signing...</> : 'Sign Agreement'}
+                            <Button
+                              onClick={() => handleSign(agreement.id)}
+                              disabled={!signedName.trim() || !consent || submitting}
+                            >
+                              {submitting
+                                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Signing...</>
+                                : 'Sign Agreement'}
                             </Button>
-                            <Button variant="outline" onClick={() => { setSigningId(null); setSignedName(''); setConsent(false) }}>Cancel</Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => { setSigningId(null); setSignedName(''); setConsent(false) }}
+                            >
+                              Cancel
+                            </Button>
                           </div>
                         </div>
                       ) : (
                         <Button onClick={() => setSigningId(agreement.id)}>
-                          <FileSignature className="h-4 w-4 mr-2" /> Review & Sign Agreement
+                          <FileSignature className="h-4 w-4 mr-2" /> Review &amp; Sign Agreement
                         </Button>
                       )}
                     </>
                   )}
 
-                  {/* Signed but deposit unpaid */}
                   {agreement.status === 'signed_awaiting_deposit' && agreement.deposit_amount && (
-                    <Button onClick={() => handlePayDeposit(agreement.id)} className="bg-green-600 hover:bg-green-700">
-                      <CreditCard className="h-4 w-4 mr-2" /> Pay Deposit (${(agreement.deposit_amount / 100).toFixed(2)})
+                    <Button
+                      onClick={() => handlePayDeposit(agreement.id)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Pay Deposit (${(agreement.deposit_amount / 100).toFixed(2)})
                     </Button>
                   )}
                 </CardContent>
@@ -213,5 +258,13 @@ export default function AgreementPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function AgreementPage() {
+  return (
+    <Suspense fallback={<AgreementSkeleton />}>
+      <AgreementContent />
+    </Suspense>
   )
 }
