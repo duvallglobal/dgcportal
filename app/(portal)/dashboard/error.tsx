@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 
 export default function DashboardError({
   error,
@@ -9,32 +9,11 @@ export default function DashboardError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => {
-    console.error('Dashboard error:', error)
-  }, [error])
-
   return (
-    <div className="flex flex-1 items-center justify-center p-8">
-      <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
-        <p className="text-gray-500 mb-4 text-sm">
-          We couldn&apos;t load your dashboard data. Please try again.
-        </p>
-        {error.digest && (
-          <p className="text-xs text-gray-400 mb-4 font-mono">Error ID: {error.digest}</p>
-        )}
-        <button
-          onClick={reset}
-          className="px-5 py-2 bg-[#e2b714] text-[#1a1a2e] font-semibold rounded-lg hover:bg-[#c9a112] transition-colors text-sm"
-        >
-          Try Again
-        </button>
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+      <h2 className="text-xl font-semibold">Dashboard Error</h2>
+      <p className="text-muted-foreground text-sm">{error.message}</p>
+      <Button onClick={reset}>Try again</Button>
     </div>
   )
 }
