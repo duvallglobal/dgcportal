@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,39 @@ interface PurchasedAddon {
   created_at: string
 }
 
-export default function AddonsPage() {
+function AddonsSkeleton() {
+  return (
+    <div className="max-w-5xl mx-auto animate-pulse">
+      <div className="mb-8">
+        <div className="h-8 w-44 bg-gray-200 rounded mb-2" />
+        <div className="h-4 w-80 bg-gray-100 rounded" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <Card key={i}>
+            <CardHeader>
+              <div className="h-5 w-32 bg-gray-200 rounded mb-2" />
+              <div className="h-4 w-24 bg-gray-100 rounded" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="h-4 w-full bg-gray-100 rounded" />
+              <div className="h-4 w-3/4 bg-gray-100 rounded" />
+              <div className="flex gap-1 mt-2">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="h-5 w-16 bg-gray-100 rounded-full" />
+                ))}
+              </div>
+              <div className="h-7 w-20 bg-gray-200 rounded mt-2" />
+              <div className="h-10 w-full bg-gray-200 rounded mt-2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function AddonsContent() {
   const searchParams = useSearchParams()
   const [services, setServices] = useState<Service[]>([])
   const [purchased, setPurchased] = useState<PurchasedAddon[]>([])
@@ -73,13 +105,10 @@ export default function AddonsPage() {
     }
   }
 
-  const isPurchased = (serviceId: string) => {
-    return purchased.some((p) => p.service_id === serviceId && ['paid', 'active', 'completed'].includes(p.status))
-  }
+  const isPurchased = (serviceId: string) =>
+    purchased.some((p) => p.service_id === serviceId && ['paid', 'active', 'completed'].includes(p.status))
 
-  if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
-  }
+  if (loading) return <AddonsSkeleton />
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -91,7 +120,7 @@ export default function AddonsPage() {
       {success && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
           <CheckCircle className="h-5 w-5 text-green-600" />
-          <p className="text-sm text-green-800">Add-on purchased successfully! We'll get started on it right away.</p>
+          <p className="text-sm text-green-800">Add-on purchased successfully! We&apos;ll get started on it right away.</p>
         </div>
       )}
       {canceled && (
@@ -106,7 +135,7 @@ export default function AddonsPage() {
           <CardContent className="py-12 text-center">
             <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-600">No Add-on Services Available</h3>
-            <p className="text-sm text-gray-500 mt-2">Check back soon — new services are added regularly.</p>
+            <p className="text-sm text-gray-500 mt-2">Check back soon \u2014 new services are added regularly.</p>
           </CardContent>
         </Card>
       ) : (
@@ -137,10 +166,14 @@ export default function AddonsPage() {
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-1">
                         {service.capabilities.split(',').slice(0, 4).map((cap, i) => (
-                          <span key={i} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{cap.trim()}</span>
+                          <span key={i} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                            {cap.trim()}
+                          </span>
                         ))}
                         {service.capabilities.split(',').length > 4 && (
-                          <span className="text-xs text-gray-400">+{service.capabilities.split(',').length - 4} more</span>
+                          <span className="text-xs text-gray-400">
+                            +{service.capabilities.split(',').length - 4} more
+                          </span>
                         )}
                       </div>
                     </div>
@@ -176,5 +209,13 @@ export default function AddonsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function AddonsPage() {
+  return (
+    <Suspense fallback={<AddonsSkeleton />}>
+      <AddonsContent />
+    </Suspense>
   )
 }
