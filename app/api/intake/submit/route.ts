@@ -6,7 +6,6 @@ import { sendEmail } from '@/lib/resend'
 import { encrypt } from '@/lib/encryption'
 import { z } from 'zod'
 
-// Safe JSON parse that never throws
 function safeParseJSON<T>(value: string | null, fallback: T): T {
   if (!value) return fallback
   try {
@@ -14,6 +13,24 @@ function safeParseJSON<T>(value: string | null, fallback: T): T {
   } catch {
     return fallback
   }
+}
+
+function sanitizeFileName(name: string): string {
+  const ext = name.lastIndexOf('.') > 0 ? name.slice(name.lastIndexOf('.')) : ''
+  let base = name.slice(0, name.length - ext.length)
+  // Remove non-ASCII characters
+  base = base.replace(/[^\x20-\x7E]/g, '')
+  // Replace spaces and unsafe URL characters with hyphens
+  base = base.replace(/[\s#?&%+=/\\:*"<>|{}^`\[\]]/g, '-')
+  // Collapse consecutive hyphens
+  base = base.replace(/-{2,}/g, '-')
+  // Trim leading/trailing hyphens
+  base = base.replace(/^-+|-+$/g, '')
+  // Fallback if name is empty after sanitization
+  if (!base) base = 'upload'
+  // Enforce max length
+  base = base.slice(0, 200)
+  return base + ext.toLowerCase()
 }
 
 const intakeSchema = z.object({
@@ -38,7 +55,6 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth()
     const formData = await request.formData()
 
-    // Extract and validate fields
     const rawData = {
       business_name: formData.get('business_name') as string || '',
       industry: formData.get('industry') as string || '',
@@ -67,7 +83,6 @@ export async function POST(request: NextRequest) {
     const supabase = await createServerSupabaseClient()
     const adminSupabase = createAdminSupabaseClient()
 
-    // Get client record
     const { data: client } = await supabase
       .from('clients')
       .select('id')
@@ -78,13 +93,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Client record not found' }, { status: 404 })
     }
 
-    // Encrypt platform credentials with AES-256-GCM
     let encryptedCredentials: string | null = null
     if (data.platform_credentials) {
       encryptedCredentials = encrypt(data.platform_credentials)
     }
 
-    // Insert intake record
     const { data: intake, error: intakeError } = await supabase
       .from('project_intakes')
       .insert({
@@ -119,7 +132,8 @@ export async function POST(request: NextRequest) {
       const file = formData.get(key) as File
       if (!file || !file.name) continue
 
-      const filePath = `${client.id}/${intake.id}/${Date.now()}_${file.name}`
+      const safeName = sanitizeFileName(file.name)
+      const filePath = `${client.id}/${intake.id}/${Date.now()}_${safeName}`
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 
@@ -145,14 +159,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update client business name if not set
     await supabase
       .from('clients')
       .update({ business_name: data.business_name, phone: data.phone, updated_at: new Date().toISOString() })
       .eq('id', client.id)
       .is('business_name', null)
 
-    // Notify admin
     await sendEmail({
       to: 'mj@dgc.today',
       subject: `New Project Intake: ${data.business_name}`,
