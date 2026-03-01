@@ -53,7 +53,7 @@ export default function TicketDetailPage() {
         setTicket(data.ticket)
       }
     } catch (_err) {
-      console.error('Failed to fetch ticket:', err)
+      console.error('Failed to fetch ticket:', _err)
     } finally {
       setLoading(false)
     }
@@ -76,7 +76,7 @@ export default function TicketDetailPage() {
         await fetchTicket()
       }
     } catch (_err) {
-      console.error('Reply error:', err)
+      console.error('Reply error:', _err)
     } finally {
       setSending(false)
     }

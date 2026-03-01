@@ -40,7 +40,7 @@ export default function AdminClientBillingPage() {
         const data = await subRes.json()
         setCurrentSub(data.subscription || null)
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setLoading(false) }
   }, [clientId])
 
@@ -62,7 +62,7 @@ export default function AdminClientBillingPage() {
         const data = await res.json()
         alert(data.error || 'Failed to assign subscription')
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setAssigning(false) }
   }
 

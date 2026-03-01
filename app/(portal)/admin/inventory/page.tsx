@@ -44,7 +44,7 @@ export default function AdminInventoryPage() {
         const data = await res.json()
         setProducts(data.products || [])
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setLoading(false) }
   }, [statusFilter])
 
@@ -63,7 +63,7 @@ export default function AdminInventoryPage() {
         setSaved(productId)
         setTimeout(() => setSaved(null), 2000)
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setSaving(null); setEditingNotes(null) }
   }
 

@@ -47,7 +47,7 @@ export default function AgreementPage() {
         setAgreements(data.agreements || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch agreements:', err)
+      console.error('Failed to fetch agreements:', _err)
     } finally {
       setLoading(false)
     }
@@ -74,7 +74,7 @@ export default function AgreementPage() {
         setConsent(false)
       }
     } catch (_err) {
-      console.error('Signing error:', err)
+      console.error('Signing error:', _err)
       alert('Failed to sign agreement. Please try again.')
     } finally {
       setSubmitting(false)
@@ -91,7 +91,7 @@ export default function AgreementPage() {
       const data = await res.json()
       if (data.url) window.location.href = data.url
     } catch (_err) {
-      console.error('Deposit payment error:', err)
+      console.error('Deposit payment error:', _err)
     }
   }
 

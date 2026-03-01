@@ -33,7 +33,7 @@ export default function ChatPage() {
         setMessages(data.messages || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch chat history:', err)
+      console.error('Failed to fetch chat history:', _err)
     } finally {
       setLoading(false)
     }

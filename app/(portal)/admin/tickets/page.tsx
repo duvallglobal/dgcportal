@@ -46,7 +46,7 @@ export default function AdminTicketsPage() {
         const data = await res.json()
         setTickets(data.tickets || [])
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setLoading(false) }
   }, [statusFilter, priorityFilter])
 
@@ -72,7 +72,7 @@ export default function AdminTicketsPage() {
       })
       setReply('')
       await fetchTickets()
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     finally { setSending(false) }
   }
 
@@ -84,7 +84,7 @@ export default function AdminTicketsPage() {
         const data = await res.json()
         setTickets((prev) => prev.map((t) => t.id === ticketId ? { ...t, replies: data.replies } : t))
       }
-    } catch (_err) { console.error(err) }
+    } catch (_err) { console.error(_err) }
     setExpanded(ticketId)
   }
 

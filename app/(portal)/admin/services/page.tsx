@@ -39,7 +39,7 @@ export default function AdminServicesPage() {
         setServices(data.services || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch services:', err)
+      console.error('Failed to fetch services:', _err)
     } finally {
       setLoading(false)
     }
@@ -62,7 +62,7 @@ export default function AdminServicesPage() {
         setTimeout(() => setSaved(null), 2000)
       }
     } catch (_err) {
-      console.error('Update error:', err)
+      console.error('Update error:', _err)
     } finally {
       setSaving(null)
     }
@@ -88,7 +88,7 @@ export default function AdminServicesPage() {
         setTimeout(() => setSaved(null), 2000)
       }
     } catch (_err) {
-      console.error('Price set error:', err)
+      console.error('Price set error:', _err)
     } finally {
       setSaving(null)
     }

@@ -42,7 +42,7 @@ export default function SupportPage() {
         setTickets(data.tickets || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch tickets:', err)
+      console.error('Failed to fetch tickets:', _err)
     } finally {
       setLoading(false)
     }

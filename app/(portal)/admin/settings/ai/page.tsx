@@ -51,7 +51,7 @@ export default function AdminAISettingsPage() {
         setTools(data.settings || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch AI settings:', err)
+      console.error('Failed to fetch AI settings:', _err)
     } finally {
       setLoading(false)
     }
@@ -107,7 +107,7 @@ export default function AdminAISettingsPage() {
         setTimeout(() => setSaved(null), 3000)
       }
     } catch (_err) {
-      console.error('Failed to save:', err)
+      console.error('Failed to save:', _err)
     } finally {
       setSaving(null)
     }

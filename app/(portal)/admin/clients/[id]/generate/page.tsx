@@ -42,7 +42,7 @@ export default function GeneratePage() {
         setClientData(data.client)
       }
     } catch (_err) {
-      console.error('Failed to fetch client:', err)
+      console.error('Failed to fetch client:', _err)
     } finally {
       setLoading(false)
     }
@@ -75,7 +75,7 @@ export default function GeneratePage() {
         }
       }
     } catch (_err) {
-      console.error('Generation error:', err)
+      console.error('Generation error:', _err)
       alert('Failed to generate document. Check AI settings.')
     } finally {
       setGenerating(false)
@@ -102,7 +102,7 @@ export default function GeneratePage() {
         alert('Failed to push to DocuSeal.')
       }
     } catch (_err) {
-      console.error('Push error:', err)
+      console.error('Push error:', _err)
     } finally {
       setPushing(false)
     }

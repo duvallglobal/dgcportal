@@ -60,7 +60,7 @@ export default function BillingPage() {
         setSubscriptions(data.subscriptions || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch billing:', err)
+      console.error('Failed to fetch billing:', _err)
     } finally {
       setLoading(false)
     }
@@ -76,7 +76,7 @@ export default function BillingPage() {
       if (data.url) window.location.href = data.url
       else alert(data.error || 'Could not open billing portal')
     } catch (_err) {
-      console.error('Portal error:', err)
+      console.error('Portal error:', _err)
     } finally {
       setPortalLoading(false)
     }

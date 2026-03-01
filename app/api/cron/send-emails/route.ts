@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         await supabase.from('scheduled_emails').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', email.id)
         sent++
       } catch (err) {
-        console.error(`Failed to send email ${email.id}:`, err)
+        console.error(`Failed to send email ${email.id}:`, _err)
         await supabase.from('scheduled_emails').update({ status: 'failed', error: String(err) }).eq('id', email.id)
       }
     }

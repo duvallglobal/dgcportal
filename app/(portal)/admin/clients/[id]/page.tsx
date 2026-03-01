@@ -30,7 +30,7 @@ export default function AdminClientDetailPage() {
       const res = await fetch(`/api/admin/clients/${clientId}`)
       if (res.ok) setData(await res.json())
     } catch (err) {
-      console.error('Failed to load client:', err)
+      console.error('Failed to load client:', _err)
     } finally {
       setLoading(false)
     }

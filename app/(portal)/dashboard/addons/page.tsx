@@ -44,7 +44,7 @@ export default function AddonsPage() {
         setPurchased(data.purchased || [])
       }
     } catch (_err) {
-      console.error('Failed to fetch addons:', err)
+      console.error('Failed to fetch addons:', _err)
     } finally {
       setLoading(false)
     }
@@ -67,7 +67,7 @@ export default function AddonsPage() {
         alert(data.error || 'Failed to start checkout')
       }
     } catch (_err) {
-      console.error('Purchase error:', err)
+      console.error('Purchase error:', _err)
     } finally {
       setPurchasing(null)
     }
