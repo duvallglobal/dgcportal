@@ -4,12 +4,12 @@ import { createAdminSupabaseClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
+    const { id: cid } = await params
     const supabase = createAdminSupabaseClient()
-    const cid = params.id
 
     const [clientRes, intakesRes, agreementsRes, paymentsRes, ticketsRes, chatRes] = await Promise.all([
       supabase.from('clients').select('*').eq('id', cid).single(),
@@ -31,6 +31,7 @@ export async function GET(
       chatMessages: chatRes.data || [],
     })
   } catch (error: unknown) {
-    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Admin client full error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

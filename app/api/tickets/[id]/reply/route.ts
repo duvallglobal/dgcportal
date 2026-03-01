@@ -5,21 +5,21 @@ import { sendEmail } from '@/lib/resend'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
+    const { id } = await params
     const { content } = await request.json()
     const supabase = await createServerSupabaseClient()
 
     const { data: client } = await supabase.from('clients').select('id, full_name, email').eq('clerk_user_id', user.userId).single()
     if (!client) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    // Verify ticket belongs to client
     const { data: ticket } = await supabase
       .from('support_tickets')
       .select('id, subject, client_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('client_id', client.id)
       .single()
 
@@ -28,7 +28,7 @@ export async function POST(
     const { data: reply, error } = await supabase
       .from('ticket_replies')
       .insert({
-        ticket_id: params.id,
+        ticket_id: id,
         sender_role: 'client',
         sender_name: client.full_name,
         content,
@@ -36,12 +36,10 @@ export async function POST(
       .select()
       .single()
 
-    if (error) console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    if (error) return NextResponse.json({ error: 'Failed to create reply' }, { status: 500 })
 
-    // Update ticket timestamp
-    await supabase.from('support_tickets').update({ updated_at: new Date().toISOString() }).eq('id', params.id)
+    await supabase.from('support_tickets').update({ updated_at: new Date().toISOString() }).eq('id', id)
 
-    // Notify admin of new reply
     await sendEmail({
       to: process.env.ADMIN_EMAIL || 'admin@dfrmdgc.com',
       subject: `Reply on ticket: ${ticket.subject}`,
@@ -50,6 +48,7 @@ export async function POST(
 
     return NextResponse.json({ reply })
   } catch (error: unknown) {
-    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Ticket reply error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

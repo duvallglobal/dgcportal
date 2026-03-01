@@ -4,10 +4,11 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
+    const { id } = await params
     const supabase = await createServerSupabaseClient()
 
     const { data: client } = await supabase.from('clients').select('id').eq('clerk_user_id', user.userId).single()
@@ -16,7 +17,7 @@ export async function GET(
     const { data: ticket } = await supabase
       .from('support_tickets')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('client_id', client.id)
       .single()
 
@@ -25,11 +26,12 @@ export async function GET(
     const { data: replies } = await supabase
       .from('ticket_replies')
       .select('*')
-      .eq('ticket_id', params.id)
+      .eq('ticket_id', id)
       .order('created_at', { ascending: true })
 
     return NextResponse.json({ ticket: { ...ticket, replies: replies || [] } })
   } catch (error: unknown) {
-    console.error('API error:', error); return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Ticket detail error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
