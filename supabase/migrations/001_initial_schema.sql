@@ -288,27 +288,35 @@ CREATE INDEX IF NOT EXISTS idx_scheduled_emails_pending ON public.scheduled_emai
 -- UPDATED_AT TRIGGERS
 -- ============================================
 
+DROP TRIGGER IF EXISTS set_updated_at_clients ON public.clients;
 CREATE TRIGGER set_updated_at_clients BEFORE UPDATE ON public.clients
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_intakes ON public.project_intakes;
 CREATE TRIGGER set_updated_at_intakes BEFORE UPDATE ON public.project_intakes
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_services ON public.services;
 CREATE TRIGGER set_updated_at_services BEFORE UPDATE ON public.services
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_products ON public.products;
 CREATE TRIGGER set_updated_at_products BEFORE UPDATE ON public.products
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_agreements ON public.service_agreements;
 CREATE TRIGGER set_updated_at_agreements BEFORE UPDATE ON public.service_agreements
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_subscriptions ON public.subscriptions;
 CREATE TRIGGER set_updated_at_subscriptions BEFORE UPDATE ON public.subscriptions
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_tickets ON public.support_tickets;
 CREATE TRIGGER set_updated_at_tickets BEFORE UPDATE ON public.support_tickets
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_ai_settings ON public.ai_settings;
 CREATE TRIGGER set_updated_at_ai_settings BEFORE UPDATE ON public.ai_settings
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
@@ -335,12 +343,14 @@ ALTER TABLE public.ai_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.scheduled_emails ENABLE ROW LEVEL SECURITY;
 
 -- clients
+DROP POLICY IF EXISTS "clients_own" ON public.clients;
 CREATE POLICY "clients_own" ON public.clients
   FOR ALL TO authenticated
   USING (clerk_user_id = public.requesting_user_id() OR public.is_admin())
   WITH CHECK (clerk_user_id = public.requesting_user_id() OR public.is_admin());
 
 -- project_intakes
+DROP POLICY IF EXISTS "intakes_own" ON public.project_intakes;
 CREATE POLICY "intakes_own" ON public.project_intakes
   FOR ALL TO authenticated
   USING (
@@ -353,6 +363,7 @@ CREATE POLICY "intakes_own" ON public.project_intakes
   );
 
 -- intake_files
+DROP POLICY IF EXISTS "intake_files_own" ON public.intake_files;
 CREATE POLICY "intake_files_own" ON public.intake_files
   FOR ALL TO authenticated
   USING (
@@ -373,20 +384,25 @@ CREATE POLICY "intake_files_own" ON public.intake_files
   );
 
 -- services: everyone reads, admin writes
+DROP POLICY IF EXISTS "services_read" ON public.services;
 CREATE POLICY "services_read" ON public.services
   FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "services_write" ON public.services;
 CREATE POLICY "services_write" ON public.services
   FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "services_update" ON public.services;
 CREATE POLICY "services_update" ON public.services
   FOR UPDATE TO authenticated
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "services_delete" ON public.services;
 CREATE POLICY "services_delete" ON public.services
   FOR DELETE TO authenticated USING (public.is_admin());
 
 -- client_addons
+DROP POLICY IF EXISTS "addons_own" ON public.client_addons;
 CREATE POLICY "addons_own" ON public.client_addons
   FOR ALL TO authenticated
   USING (
@@ -399,6 +415,7 @@ CREATE POLICY "addons_own" ON public.client_addons
   );
 
 -- products
+DROP POLICY IF EXISTS "products_own" ON public.products;
 CREATE POLICY "products_own" ON public.products
   FOR ALL TO authenticated
   USING (
@@ -411,6 +428,7 @@ CREATE POLICY "products_own" ON public.products
   );
 
 -- product_images
+DROP POLICY IF EXISTS "product_images_own" ON public.product_images;
 CREATE POLICY "product_images_own" ON public.product_images
   FOR ALL TO authenticated
   USING (
@@ -431,6 +449,7 @@ CREATE POLICY "product_images_own" ON public.product_images
   );
 
 -- service_agreements
+DROP POLICY IF EXISTS "agreements_own" ON public.service_agreements;
 CREATE POLICY "agreements_own" ON public.service_agreements
   FOR ALL TO authenticated
   USING (
@@ -443,6 +462,7 @@ CREATE POLICY "agreements_own" ON public.service_agreements
   );
 
 -- payments
+DROP POLICY IF EXISTS "payments_own" ON public.payments;
 CREATE POLICY "payments_own" ON public.payments
   FOR ALL TO authenticated
   USING (
@@ -455,6 +475,7 @@ CREATE POLICY "payments_own" ON public.payments
   );
 
 -- subscriptions
+DROP POLICY IF EXISTS "subscriptions_own" ON public.subscriptions;
 CREATE POLICY "subscriptions_own" ON public.subscriptions
   FOR ALL TO authenticated
   USING (
@@ -467,6 +488,7 @@ CREATE POLICY "subscriptions_own" ON public.subscriptions
   );
 
 -- support_tickets
+DROP POLICY IF EXISTS "tickets_own" ON public.support_tickets;
 CREATE POLICY "tickets_own" ON public.support_tickets
   FOR ALL TO authenticated
   USING (
@@ -479,6 +501,7 @@ CREATE POLICY "tickets_own" ON public.support_tickets
   );
 
 -- ticket_replies: secured INSERT (prevents admin spoofing)
+DROP POLICY IF EXISTS "ticket_replies_select" ON public.ticket_replies;
 CREATE POLICY "ticket_replies_select" ON public.ticket_replies
   FOR SELECT TO authenticated
   USING (
@@ -490,6 +513,7 @@ CREATE POLICY "ticket_replies_select" ON public.ticket_replies
     )
   );
 
+DROP POLICY IF EXISTS "ticket_replies_insert" ON public.ticket_replies;
 CREATE POLICY "ticket_replies_insert" ON public.ticket_replies
   FOR INSERT TO authenticated
   WITH CHECK (
@@ -508,14 +532,17 @@ CREATE POLICY "ticket_replies_insert" ON public.ticket_replies
     )
   );
 
+DROP POLICY IF EXISTS "ticket_replies_update" ON public.ticket_replies;
 CREATE POLICY "ticket_replies_update" ON public.ticket_replies
   FOR UPDATE TO authenticated
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "ticket_replies_delete" ON public.ticket_replies;
 CREATE POLICY "ticket_replies_delete" ON public.ticket_replies
   FOR DELETE TO authenticated USING (public.is_admin());
 
 -- ticket_attachments
+DROP POLICY IF EXISTS "ticket_attachments_own" ON public.ticket_attachments;
 CREATE POLICY "ticket_attachments_own" ON public.ticket_attachments
   FOR ALL TO authenticated
   USING (
@@ -536,6 +563,7 @@ CREATE POLICY "ticket_attachments_own" ON public.ticket_attachments
   );
 
 -- feedback_reviews: public read/write by token for submission, admin sees all
+DROP POLICY IF EXISTS "feedback_select" ON public.feedback_reviews;
 CREATE POLICY "feedback_select" ON public.feedback_reviews
   FOR SELECT TO authenticated
   USING (
@@ -543,17 +571,21 @@ CREATE POLICY "feedback_select" ON public.feedback_reviews
     client_id IN (SELECT id FROM public.clients WHERE clerk_user_id = public.requesting_user_id())
   );
 
+DROP POLICY IF EXISTS "feedback_select_anon" ON public.feedback_reviews;
 CREATE POLICY "feedback_select_anon" ON public.feedback_reviews
   FOR SELECT TO anon USING (true);
 
+DROP POLICY IF EXISTS "feedback_update_anon" ON public.feedback_reviews;
 CREATE POLICY "feedback_update_anon" ON public.feedback_reviews
   FOR UPDATE TO anon USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "feedback_admin_write" ON public.feedback_reviews;
 CREATE POLICY "feedback_admin_write" ON public.feedback_reviews
   FOR ALL TO authenticated
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- chat_messages
+DROP POLICY IF EXISTS "chat_own" ON public.chat_messages;
 CREATE POLICY "chat_own" ON public.chat_messages
   FOR ALL TO authenticated
   USING (
@@ -566,11 +598,13 @@ CREATE POLICY "chat_own" ON public.chat_messages
   );
 
 -- ai_settings: admin only
+DROP POLICY IF EXISTS "ai_settings_admin" ON public.ai_settings;
 CREATE POLICY "ai_settings_admin" ON public.ai_settings
   FOR ALL TO authenticated
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- scheduled_emails: service_role only (accessed via adminSupabase)
+DROP POLICY IF EXISTS "scheduled_emails_service" ON public.scheduled_emails;
 CREATE POLICY "scheduled_emails_service" ON public.scheduled_emails
   FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
@@ -597,28 +631,34 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS: intake-assets
+DROP POLICY IF EXISTS "intake_assets_upload" ON storage.objects;
 CREATE POLICY "intake_assets_upload" ON storage.objects
   FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'intake-assets');
 
+DROP POLICY IF EXISTS "intake_assets_read" ON storage.objects;
 CREATE POLICY "intake_assets_read" ON storage.objects
   FOR SELECT TO authenticated
   USING (bucket_id = 'intake-assets');
 
 -- Storage RLS: product-images
+DROP POLICY IF EXISTS "product_images_upload" ON storage.objects;
 CREATE POLICY "product_images_upload" ON storage.objects
   FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'product-images');
 
+DROP POLICY IF EXISTS "product_images_read" ON storage.objects;
 CREATE POLICY "product_images_read" ON storage.objects
   FOR SELECT TO authenticated
   USING (bucket_id = 'product-images');
 
 -- Storage RLS: ticket-attachments (private)
+DROP POLICY IF EXISTS "ticket_attachments_upload" ON storage.objects;
 CREATE POLICY "ticket_attachments_upload" ON storage.objects
   FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'ticket-attachments');
 
+DROP POLICY IF EXISTS "ticket_attachments_read" ON storage.objects;
 CREATE POLICY "ticket_attachments_read" ON storage.objects
   FOR SELECT TO authenticated
   USING (bucket_id = 'ticket-attachments');

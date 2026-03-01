@@ -10,12 +10,14 @@
  * Stores returned Stripe product_id in the Supabase services table.
  */
 
+import { loadEnvConfig } from '@next/env'
+loadEnvConfig(process.cwd())
+
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
 const args = process.argv.slice(2)
 const isLive = args.includes('--live')
-const isTest = args.includes('--test') || !isLive
 
 const stripeKey = isLive
   ? process.env.STRIPE_SECRET_KEY
@@ -34,7 +36,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1)
 }
 
-const stripe = new Stripe(stripeKey, { apiVersion: '2024-12-18.acacia' })
+const stripe = new Stripe(stripeKey, { apiVersion: '2025-02-24.acacia' })
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 console.log(`\n🔑 Mode: ${isLive ? '🔴 LIVE' : '🟡 TEST'}`)
