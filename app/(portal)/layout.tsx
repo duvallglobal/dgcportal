@@ -6,8 +6,8 @@ import { UserButton } from '@clerk/nextjs'
 import { useUser } from '@clerk/nextjs'
 import {
   LayoutDashboard, FileText, Package, FileSignature, CreditCard,
-  ShoppingBag, LifeBuoy, Users, Tag,
-  Star, Cpu, AlertTriangle, Menu, X
+  ShoppingBag, LifeBuoy, Users, Tag, MessageCircle, Settings,
+  Star, Cpu, AlertTriangle, Menu, X, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -19,6 +19,7 @@ const clientNav = [
   { label: 'Agreement', href: '/dashboard/agreement', icon: FileSignature },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Add-ons', href: '/dashboard/addons', icon: ShoppingBag },
+  { label: 'Chat', href: '/dashboard/chat', icon: MessageCircle },
   { label: 'Support', href: '/dashboard/support', icon: LifeBuoy },
 ]
 
@@ -30,15 +31,17 @@ const adminNav = [
   { label: 'Inventory', href: '/admin/inventory', icon: Package },
   { label: 'Reviews', href: '/admin/reviews', icon: Star },
   { label: 'AI Settings', href: '/admin/settings/ai', icon: Cpu },
+  { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user } = useUser()
-  const isAdmin = (user?.publicMetadata as any)?.role === 'admin'
+  const isAdmin = (user?.publicMetadata as Record<string, string> | undefined)?.role === 'admin'
   const isAdminRoute = pathname.startsWith('/admin')
   const nav = isAdminRoute ? adminNav : clientNav
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   const isTestMode = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_test')
 
@@ -51,20 +54,21 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
       {/* Sidebar */}
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a2e] text-white flex flex-col transition-transform lg:translate-x-0 lg:static',
+        'fixed inset-y-0 left-0 z-50 bg-[#1a1a2e] text-white flex flex-col transition-all lg:translate-x-0 lg:static',
+        collapsed ? 'w-16' : 'w-64',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center justify-between">
             <Link href={isAdminRoute ? '/admin' : '/dashboard'} className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#e2b714] rounded-lg flex items-center justify-center font-bold text-[#1a1a2e] text-sm">D</div>
-              <span className="font-bold text-lg">DGC Portal</span>
+              <div className="w-8 h-8 bg-[#e2b714] rounded-lg flex items-center justify-center font-bold text-[#1a1a2e] text-sm shrink-0">D</div>
+              {!collapsed && <span className="font-bold text-lg">DGC Portal</span>}
             </Link>
             <button className="lg:hidden text-white/70 hover:text-white" onClick={() => setSidebarOpen(false)}>
               <X className="h-5 w-5" />
             </button>
           </div>
-          {isAdmin && (
+          {isAdmin && !collapsed && (
             <div className="mt-3 flex gap-1">
               <Link href="/dashboard" className={cn('text-xs px-2 py-1 rounded', !isAdminRoute ? 'bg-[#e2b714] text-[#1a1a2e]' : 'text-white/60 hover:text-white')}>
                 Client View
@@ -84,29 +88,46 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
+                title={collapsed ? item.label : undefined}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
+                  collapsed && 'justify-center px-2',
                   isActive
                     ? 'bg-[#e2b714] text-[#1a1a2e] font-medium'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 )}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-4 w-4 shrink-0" />
+                {!collapsed && item.label}
               </Link>
             )
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3">
-            <UserButton afterSignOutUrl="/" />
-            <div className="min-w-0">
-              <div className="text-sm font-medium truncate">{user?.fullName || 'User'}</div>
-              <div className="text-xs text-white/50 truncate">{user?.primaryEmailAddress?.emailAddress}</div>
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="hidden lg:flex items-center justify-center py-3 border-t border-white/10 text-white/50 hover:text-white transition-colors"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+
+        {!collapsed && (
+          <div className="p-4 border-t border-white/10">
+            <div className="flex items-center gap-3">
+              <UserButton afterSignOutUrl="/" />
+              <div className="min-w-0">
+                <div className="text-sm font-medium truncate">{user?.fullName || 'User'}</div>
+                <div className="text-xs text-white/50 truncate">{user?.primaryEmailAddress?.emailAddress}</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+        {collapsed && (
+          <div className="p-3 border-t border-white/10 flex justify-center">
+            <UserButton afterSignOutUrl="/" />
+          </div>
+        )}
       </aside>
 
       {/* Main content */}
