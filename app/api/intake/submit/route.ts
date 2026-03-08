@@ -84,8 +84,26 @@ export async function POST(request: NextRequest) {
       .eq('clerk_user_id', user.userId)
       .single()
 
-    if (!client) {
-      return NextResponse.json({ error: 'Client record not found' }, { status: 404 })
+    let clientId = client?.id
+
+    if (!clientId) {
+      // Lazy-sync fallback
+      const { data: newClient, error: createError } = await adminSupabase
+        .from('clients')
+        .insert({
+          clerk_user_id: user.userId,
+          email: user.email,
+          full_name: user.fullName || data.business_name,
+          role: user.role || 'client',
+        })
+        .select('id')
+        .single()
+
+      if (createError || !newClient) {
+        console.error('Failed to lazy-sync client:', createError)
+        return NextResponse.json({ error: 'Client record not found and failed to create' }, { status: 404 })
+      }
+      clientId = newClient.id
     }
 
     let encryptedCredentials: string | null = null
@@ -96,7 +114,7 @@ export async function POST(request: NextRequest) {
     const { data: intake, error: intakeError } = await supabase
       .from('project_intakes')
       .insert({
-        client_id: client.id,
+        client_id: clientId,
         business_name: data.business_name,
         industry: data.industry,
         website_url: data.website_url || null,
@@ -127,7 +145,7 @@ export async function POST(request: NextRequest) {
       if (!file || !file.name) continue
 
       const safeName = sanitizeFileName(file.name)
-      const filePath = `${client.id}/${intake.id}/${Date.now()}_${safeName}`
+      const filePath = `${clientId}/${intake.id}/${Date.now()}_${safeName}`
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 
@@ -156,7 +174,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('clients')
       .update({ business_name: data.business_name, phone: data.phone, updated_at: new Date().toISOString() })
-      .eq('id', client.id)
+      .eq('id', clientId)
       .is('business_name', null)
 
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@dgc.today'
@@ -169,7 +187,7 @@ export async function POST(request: NextRequest) {
         <p><strong>Services:</strong> ${data.services_interested.join(', ')}</p>
         <p><strong>Budget:</strong> ${data.budget_range}</p>
         <p><strong>Timeline:</strong> ${data.timeline}</p>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/clients/${client.id}">View Client Details</a></p>`,
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/clients/${clientId}">View Client Details</a></p>`,
     })
 
     return NextResponse.json({ success: true, intakeId: intake.id })

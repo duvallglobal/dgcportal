@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Package, DollarSign, Loader2, CheckCircle, Tag } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Package, DollarSign, Loader2, CheckCircle, Tag, Plus } from 'lucide-react'
 
 interface Service {
   id: string
@@ -30,6 +32,10 @@ export default function AdminServicesPage() {
   const [saved, setSaved] = useState<string | null>(null)
   const [editingPrice, setEditingPrice] = useState<string | null>(null)
   const [priceInput, setPriceInput] = useState('')
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [newService, setNewService] = useState({ name: '', description: '', category: 'core', price: '' })
 
   const fetchServices = useCallback(async () => {
     try {
@@ -94,15 +100,95 @@ export default function AdminServicesPage() {
     }
   }
 
+  const handleCreateService = async () => {
+    if (!newService.name) return
+    setCreating(true)
+    try {
+      const priceVal = parseFloat(newService.price)
+      const priceAmount = !isNaN(priceVal) && priceVal > 0 ? Math.round(priceVal * 100) : undefined
+
+      const res = await fetch('/api/admin/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newService.name,
+          description: newService.description,
+          category: newService.category,
+          price: priceAmount,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setServices((prev) => [data.service, ...prev])
+        setIsCreateOpen(false)
+        setNewService({ name: '', description: '', category: 'core', price: '' })
+      } else {
+        alert('Failed to create service')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error creating service')
+    } finally {
+      setCreating(false)
+    }
+  }
+
   if (loading) {
     return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
   }
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Service Management</h1>
-        <p className="text-gray-500 mt-1">Manage DGC services synced from Stripe. Set prices, toggle active status, and assign categories.</p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1a1a2e]">Service Management</h1>
+          <p className="text-gray-500 mt-1">Manage DGC services synced from Stripe. Set prices, toggle active status, and assign categories.</p>
+        </div>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#1a1a2e] hover:bg-[#1a1a2e]/90 gap-2 shrink-0">
+              <Plus className="h-4 w-4" /> New Service
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Create New Service</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Service Name *</label>
+                <Input value={newService.name} onChange={(e) => setNewService({ ...newService, name: e.target.value })} placeholder="e.g. Website Development" />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Description</label>
+                <Textarea value={newService.description} onChange={(e) => setNewService({ ...newService, description: e.target.value })} placeholder="Brief description..." rows={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">Category</label>
+                  <Select value={newService.category} onValueChange={(v) => setNewService({ ...newService, category: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="core">Core Service</SelectItem>
+                      <SelectItem value="addon">Add-on</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">Initial Price ($)</label>
+                  <Input type="number" step="0.01" min="0" value={newService.price} onChange={(e) => setNewService({ ...newService, price: e.target.value })} placeholder="0.00" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-4">
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
+              <Button onClick={handleCreateService} disabled={!newService.name || creating} className="bg-[#1a1a2e] hover:bg-[#1a1a2e]/90">
+                {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null} Create
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {services.length === 0 ? (
@@ -125,7 +211,7 @@ export default function AdminServicesPage() {
                       <Badge variant={service.category === 'core' ? 'default' : 'outline'}>{service.category}</Badge>
                       {saved === service.id && <span className="text-green-600 text-xs flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Saved</span>}
                     </div>
-                    {service.tagline && <p className="text-sm text-blue-600 font-medium mb-1">{service.tagline}</p>}
+                    {service.tagline && <p className="text-sm text-[#e2b714] font-medium mb-1">{service.tagline}</p>}
                     <p className="text-sm text-gray-600 mb-3">{service.description}</p>
 
                     {service.capabilities && (

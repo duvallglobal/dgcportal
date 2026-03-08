@@ -17,7 +17,7 @@ export async function GET(
       supabase.from('service_agreements').select('*').eq('client_id', cid).order('created_at', { ascending: false }),
       supabase.from('payments').select('*').eq('client_id', cid).order('created_at', { ascending: false }),
       supabase.from('support_tickets').select('*').eq('client_id', cid).order('created_at', { ascending: false }),
-      supabase.from('chat_messages').select('role, content, created_at').eq('client_id', cid).order('created_at', { ascending: true }).limit(200),
+      supabase.from('chat_messages').select('id, role, content, created_at').eq('client_id', cid).order('created_at', { ascending: true }).limit(200),
     ])
 
     if (!clientRes.data) return NextResponse.json({ error: 'Not found' }, { status: 404 })

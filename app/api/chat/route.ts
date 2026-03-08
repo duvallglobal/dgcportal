@@ -153,9 +153,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ reply, suggestTicket })
   } catch (error: unknown) {
-    console.error('Chat error:', error)
+    console.error('API /chat POST Error Details:', error)
+    if (error instanceof Error) {
+      console.error('Stack trace:', error.stack)
+    }
     return NextResponse.json(
-      { reply: 'Sorry, I\'m having trouble connecting right now. Please try again or open a support ticket.', suggestTicket: true },
+      { reply: 'Sorry, I encountered an error. Please try again or contact support.', suggestTicket: true },
       { status: 200 } // Return 200 so the UI can display the error message gracefully
     )
   }

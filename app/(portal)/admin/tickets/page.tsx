@@ -100,7 +100,7 @@ export default function AdminTicketsPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">Support Tickets</h1>
+      <h1 className="text-2xl font-bold mb-2 text-[#1a1a2e]">Support Tickets</h1>
       <p className="text-gray-500 mb-6">Manage all client support tickets.</p>
 
       <div className="flex gap-3 mb-6">

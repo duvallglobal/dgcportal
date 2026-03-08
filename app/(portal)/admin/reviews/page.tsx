@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils'
 interface Review {
   id: string
   rating: number
-  review: string | null
-  testimonial_permission: boolean
-  completed_at: string
+  review_text: string | null
+  allow_testimonial: boolean
+  submitted_at: string
   clients: { full_name: string; business_name: string | null } | null
 }
 
@@ -65,15 +65,15 @@ export default function AdminReviewsPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm">{r.clients?.full_name || 'Client'}</span>
                       {r.clients?.business_name && <span className="text-xs text-gray-400">{r.clients.business_name}</span>}
-                      {r.testimonial_permission && <Badge className="bg-green-100 text-green-700 text-xs">Testimonial OK</Badge>}
+                      {r.allow_testimonial && <Badge className="bg-green-100 text-green-700 text-xs">Testimonial OK</Badge>}
                     </div>
                     <div className="flex gap-0.5 mb-2">
                       {[1, 2, 3, 4, 5].map((n) => (
                         <Star key={n} className={cn('h-4 w-4', n <= r.rating ? 'fill-[#e2b714] text-[#e2b714]' : 'text-gray-200')} />
                       ))}
                     </div>
-                    {r.review && <p className="text-sm text-gray-700">{r.review}</p>}
-                    <p className="text-xs text-gray-400 mt-1">{new Date(r.completed_at).toLocaleDateString()}</p>
+                    {r.review_text && <p className="text-sm text-gray-700">{r.review_text}</p>}
+                    <p className="text-xs text-gray-400 mt-1">{new Date(r.submitted_at).toLocaleDateString()}</p>
                   </div>
                 </div>
               </CardContent>

@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
     const rating = searchParams.get('rating')
 
     let query = supabase
-      .from('feedback_requests')
+      .from('feedback_reviews')
       .select('*, clients(full_name, business_name)')
-      .eq('status', 'completed')
-      .order('completed_at', { ascending: false })
+      .not('rating', 'is', null)
+      .order('submitted_at', { ascending: false })
 
     if (rating) query = query.eq('rating', parseInt(rating))
 

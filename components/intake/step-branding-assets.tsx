@@ -1,6 +1,6 @@
 'use client'
 
-import type { IntakeFormData } from '@/app/(portal)/dashboard/intake/page'
+import type { IntakeFormData, IntakeFiles } from '@/components/intake/types'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -10,8 +10,8 @@ import { useRef } from 'react'
 interface Props {
   formData: IntakeFormData
   updateFormData: (updates: Partial<IntakeFormData>) => void
-  files: { logos: File[]; brandGuide: File | null }
-  setFiles: (files: { logos: File[]; brandGuide: File | null }) => void
+  files: IntakeFiles
+  setFiles: (files: IntakeFiles) => void
 }
 
 export function StepBrandingAssets({ formData, updateFormData, files, setFiles }: Props) {

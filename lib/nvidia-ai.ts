@@ -52,7 +52,11 @@ export async function getAISettings(toolName: string): Promise<AISettings | null
     .eq('tool_name', toolName)
     .single()
 
-  if (error || !data) return null
+  if (error || !data) {
+    console.error(`Failed to fetch AI settings for tool: ${toolName}`, error)
+    return null
+  }
+
   return data as AISettings
 }
 
